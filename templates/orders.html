@@ -1,6 +1,42 @@
 {% extends 'base.html' %}
 {% block title %}我的直播訂單清單{% endblock %}
 {% block content %}
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb custom-breadcrumb">
+    <li class="breadcrumb-item"><a href="/">首頁</a></li>
+    <li class="breadcrumb-item active" aria-current="page">我的直播訂單清單</li>
+  </ol>
+</nav>
+<style>
+.custom-breadcrumb {
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+  padding: 0 1.5rem 0 1.5rem;
+  margin-top: 2.5rem;
+  margin-bottom: 2rem;
+}
+.custom-breadcrumb .breadcrumb-item + .breadcrumb-item::before {
+  color: #bdbdbd;
+  content: "\00BB";
+  font-size: 1.1em;
+  padding: 0 0.5em;
+}
+.custom-breadcrumb .breadcrumb-item a {
+  color: var(--color-link);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+.custom-breadcrumb .breadcrumb-item a:hover {
+  color: var(--color-primary-mid);
+  text-decoration: none;
+}
+.custom-breadcrumb .breadcrumb-item.active {
+  color: var(--color-primary);
+  font-weight: 700;
+}
+</style>
 <div class="container my-5">
     <h2 class="mb-4 text-center fw-bold">我的直播訂單清單</h2>
     <div class="table-responsive">
