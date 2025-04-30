@@ -1,3 +1,8 @@
+/*
+  theam.css
+  用途：全站色彩與字型變數定義，方便統一管理與維護
+  使用範圍：所有 index.html、style.css、元件樣式、主題色、按鈕、背景、文字、分隔、卡片、footer、badge、陰影等
+*/
 :root {
   /* 主色系 - 更明亮、更清新 */
   --color-primary: #3b82f6;       /* 起始偏藍 */
@@ -9,7 +14,7 @@
 
   /* 輔色與背景 */
   --color-secondary: #fef3c7; /* 淡橘，區塊背景 */
-  --color-bg: #f9fafb; /* 整體背景更白灰、現代 */
+  --color-bg: #f9fafb; /* 整體背景更白灰、現代（用於body、主要區塊） */
   --color-bg-light: #f3f4f6; /* 淺灰，用於 hover、分隔線 */
   --color-footer: #f3f0ff; /* 頁腳背景偏亮紫 */
   --color-white: #ffffff; /* 白色卡片背景 */
@@ -20,8 +25,10 @@
   --color-danger: #ef4444; /* 錯誤提示紅 */
 
   /* 按鈕配色（依功能） */
-  --color-btn-primary: #8b5cf6;
-  --color-btn-primary-hover: #c4b5fd;
+    --color-primary: #4f46e5;         /* 藍紫，按鈕主色、標題 */
+    --color-primary-mid: #6366f1;     /* 較亮藍紫，漸層中段 */
+    --color-primary-light: #a5b4fc;   /* 淡藍紫，hover 效果 */
+    --color-primary-pink: #d8b4fe;    /* 淡紫粉，漸層尾段 */
 
   --color-btn-secondary: #ede9fe;
   --color-btn-secondary-hover: #c4b5fd;
@@ -45,3 +52,9 @@
   /* 字體 */
   --font-main: 'Inter', 'Noto Sans TC', 'Microsoft JhengHei', Arial, sans-serif;
 }
+
+/*
+  使用說明：
+  --color-bg 用於全站主要背景（如 body、主要內容區塊、section）
+  其他變數請依註解於對應區塊使用
+*/

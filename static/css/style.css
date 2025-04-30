@@ -22,7 +22,7 @@ body {
 }
 
 h2, .fw-bold {
-    color: var(--color-primary);
+    color: var(--color-text);
 }
 
 .card {
@@ -42,7 +42,11 @@ h2, .fw-bold {
 }
 
 .card-text {
-    color: var(--color-text);
+  color: #374151; /* 改為 slate-700，更柔和的深灰藍 */
+  line-height: 1.75; /* 增加行距，改善閱讀感 */
+  font-size: 1rem; /* 或可再微放大，例如 1.05rem */
+  letter-spacing: 0.02em; /* 微微增加字距 */
+  margin-bottom: 1rem; /* 加大段落間距 */
 }
 
 .badge.bg-secondary {
@@ -67,12 +71,15 @@ footer a:hover img {
 }
 
 .btn-primary {
-    background: var(--color-primary);
-    border-color: var(--color-primary);
+    background: linear-gradient(90deg, var(--color-primary) 0%, var(--color-primary-mid) 100%);
+    border: none;
+    color: white;
 }
-.btn-primary:hover, .btn-primary:focus {
-    background: var(--color-primary-light);
-    border-color: var(--color-primary-light);
+
+.btn-primary:hover,
+.btn-primary:focus {
+    background: linear-gradient(90deg, var(--color-primary-mid) 0%, var(--color-primary-light) 100%);
+    color: white;
 }
 
 
