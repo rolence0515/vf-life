@@ -1,0 +1,17 @@
+runtime: python39
+entrypoint: gunicorn -b :$PORT app:app --workers=${WEB_CONCURRENCY} --threads=${THREADS} --timeout=${TIMEOUT} --worker-class=${WORKER_CLASS}
+
+instance_class: F2
+automatic_scaling:
+  min_idle_instances: 0
+  max_instances: 10
+  target_cpu_utilization: 0.65
+  target_throughput_utilization: 0.75
+
+env_variables:
+  WEB_CONCURRENCY: 1
+  TIMEOUT: 120
+  WORKER_CLASS: gthread
+  THREADS: 5
+
+service: default

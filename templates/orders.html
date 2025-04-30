@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block title %}我的直播訂單清單{% endblock %}
+{% block content %}
+<div class="container my-5">
+    <h2 class="mb-4 text-center fw-bold">我的直播訂單清單</h2>
+    <div class="table-responsive">
+        <table class="table table-bordered align-middle text-center">
+            <thead class="table-primary">
+                <tr>
+                    <th>訂單編號</th>
+                    <th>票種</th>
+                    <th>購買日期</th>
+                    <th>金額</th>
+                    <th>狀態</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>20240515001</td>
+                    <td>上半場聯票</td>
+                    <td>2025/04/01</td>
+                    <td>NT$ 2,400</td>
+                    <td><span class="badge bg-success">已付款</span></td>
+                    <td><a href="#" class="btn btn-sm btn-outline-primary">觀看直播</a></td>
+                </tr>
+                <tr>
+                    <td>20240515002</td>
+                    <td>下半場聯票</td>
+                    <td>2025/04/02</td>
+                    <td>NT$ 2,400</td>
+                    <td><span class="badge bg-success">已付款</span></td>
+                    <td><a href="#" class="btn btn-sm btn-outline-primary">觀看直播</a></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

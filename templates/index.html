@@ -12,6 +12,14 @@
     <link href="/static/css/style.css" rel="stylesheet">
     <!-- FlipDown CDN CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flipdown@0.3.2/dist/flipdown.min.css">
+    <style>
+      @media (max-width: 576px) {
+        .carousel-img {
+          height: auto !important;
+          max-height: 60vw;
+        }
+      }
+    </style>
 </head>
 <body>
     <!-- Navbar -->
@@ -19,7 +27,7 @@
         <div class="container-fluid">
             <a class="navbar-brand d-flex align-items-center" href="#">
                 <img src="/static/imgs/vf_logo.png" alt="Logo" width="32" height="32" class="me-2">
-                雙生紫焰直播平台
+                雙生紫焰直播官方平台
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
@@ -38,33 +46,26 @@
     </nav>
 
     <!-- 活動 Banner 輪播 Carousel -->
-    <div id="eventCarousel" class="carousel slide mb-4" data-bs-ride="carousel" data-bs-interval="3500" data-bs-pause="false">
+    <div id="eventCarousel" class="carousel slide mb-0" data-bs-ride="carousel" data-bs-interval="3500" data-bs-pause="false">
       <div class="carousel-inner">
         <div class="carousel-item active position-relative overflow-hidden">
           <div class="w-100 h-100 position-absolute top-0 start-0" style="z-index:1;filter:blur(24px);transform:scale(1.1);background-position:center;background-size:cover;background-image:url('https://static.accupass.com/eventbanner/2503070837322116500810.jpg');"></div>
-          <img src="https://static.accupass.com/eventbanner/2503070837322116500810.jpg" class="d-block w-100 position-relative" alt="上半場 Banner" style="height:427px;object-fit:contain;z-index:2;background:transparent;">
+          <img src="https://static.accupass.com/eventbanner/2503070837322116500810.jpg" class="d-block w-100 position-relative carousel-img" alt="上半場 Banner" style="height:427px;object-fit:contain;z-index:2;background:transparent;">
         </div>
         <div class="carousel-item position-relative overflow-hidden">
           <div class="w-100 h-100 position-absolute top-0 start-0" style="z-index:1;filter:blur(24px);transform:scale(1.1);background-position:center;background-size:cover;background-image:url('https://static.accupass.com/eventbanner/2503070835441241330760.jpg');"></div>
-          <img src="https://static.accupass.com/eventbanner/2503070835441241330760.jpg" class="d-block w-100 position-relative" alt="下半場 Banner" style="height:427px;object-fit:contain;z-index:2;background:transparent;">
+          <img src="https://static.accupass.com/eventbanner/2503070835441241330760.jpg" class="d-block w-100 position-relative carousel-img" alt="下半場 Banner" style="height:427px;object-fit:contain;z-index:2;background:transparent;">
         </div>
       </div>
-      <!-- 可選：加上左右箭頭 -->
-      <button class="carousel-control-prev" type="button" data-bs-target="#eventCarousel" data-bs-slide="prev">
-        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-        <span class="visually-hidden">Previous</span>
-      </button>
-      <button class="carousel-control-next" type="button" data-bs-target="#eventCarousel" data-bs-slide="next">
-        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-        <span class="visually-hidden">Next</span>
-      </button>
     </div>
 
     <!-- 第一場倒數計時區塊（FlipDown） -->
-    <section class="container my-4">
-      <div class="d-flex flex-column align-items-center p-4 rounded-3" style="background:#e7eaff;">
-        <div class="fw-bold mb-2" style="font-size:1.5rem; color:#3b3b8f;">上半場倒數</div>
-        <div id="flipdown" class="flipdown"></div>
+    <section class="w-100 m-0 p-0" style="background:#e7eaff;">
+      <div class="container-fluid p-0">
+        <div class="d-flex flex-column align-items-center p-4 rounded-0" style="background:transparent;">
+          <div class="fw-bold mb-2" style="font-size:1.5rem; color:#3b3b8f;">上半場倒數</div>
+          <div id="flipdown" class="flipdown"></div>
+        </div>
       </div>
     </section>
 
@@ -72,7 +73,7 @@
     <main class="container my-5">
         <!-- 直播活動區塊 -->
         <section>
-            <h2 class="mb-4 text-center fw-bold">上半場</h2>
+            <h2 class="mb-4 text-center fw-bold">莫子 2025 線上直播 系列講座｜上半場</h2>
             <div class="row g-4 mb-5">
                 <!-- 第一場 -->
                 <div class="col-md-4">
@@ -125,7 +126,7 @@
                 </div>
             </div>
             <hr class="my-5">
-            <h2 class="mb-4 text-center fw-bold">下半場</h2>
+            <h2 class="mb-4 text-center fw-bold">莫子 2025 線上直播 系列講座｜下半場</h2>
             <div class="row g-4">
                 <!-- 第四場 -->
                 <div class="col-md-4">
