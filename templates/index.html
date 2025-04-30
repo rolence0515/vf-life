@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>首頁</title>
+    <!-- Bootstrap 5 CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- 主題變數 CSS -->
+    <link href="/static/css/theam.css" rel="stylesheet">
+    <!-- 主體樣式 CSS -->
+    <link href="/static/css/style.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+            <a class="navbar-brand d-flex align-items-center" href="#">
+                <img src="/static/imgs/vf_logo.png" alt="Logo" width="32" height="32" class="me-2">
+                雙生紫焰直播平台
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="/">首頁</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/login">登入</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 第一場倒數計時區塊 -->
+    <section class="container my-4">
+        <div class="alert alert-primary text-center fw-bold" id="countdown-timer" style="font-size:1.5rem;">
+            第一場倒數：<span id="countdown"></span>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="container my-5">
+        <!-- 直播活動區塊 -->
+        <section>
+            <h2 class="mb-4 text-center fw-bold">上半場</h2>
+            <div class="row g-4 mb-5">
+                <!-- 第一場 -->
+                <div class="col-md-4">
+                    <div class="card d-flex flex-column h-100 shadow-sm">
+                        <div class="ratio ratio-16x9">
+                            <iframe src="https://www.youtube.com/embed/PrrGykOKSdg" title="新紀元超個人經濟學" allowfullscreen></iframe>
+                        </div>
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title">新紀元超個人經濟學</h5>
+                            <h6 class="card-subtitle mb-2 text-muted">2025/05/15</h6>
+                            <p class="card-text small">如何量身打造專屬於你的靈魂迴路財富獲利模式？<br><br>在這個巨變的時代，財富的定義不再是單純的數字累積，而是你靈魂迴路的獨特展現。世界運作的規則已徹底翻新，而你，正是這巨大迴路中不可或缺的一環。本講座將帶你跳脫傳統經濟框架，探索如何在這波大時代浪潮中，打造屬於你的財富迴路，實現財富與意識的雙重覺醒。<br><br>無論你是創業者、自由工作者，還是渴望人生突破的探索者，這場講座將開啟你通往財富與靈魂並進的新紀元之門！</p>
+                            <div class="mt-auto">
+                                <span class="badge bg-secondary w-100">直播尚未開始</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- 第二場 -->
+                <div class="col-md-4">
+                    <div class="card d-flex flex-column h-100 shadow-sm">
+                        <div class="ratio ratio-16x9">
+                            <iframe src="https://www.youtube.com/embed/PrrGykOKSdg" title="掌握 AI 時代的應對之道" allowfullscreen></iframe>
+                        </div>
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title">掌握 AI 時代的應對之道</h5>
+                            <h6 class="card-subtitle mb-2 text-muted">2025/06/19</h6>
+                            <p class="card-text small">AI 統治時代來臨，如何避免人類世界被監禁？<br><br>AI的崛起如狂潮般席捲而來，顛覆產業、重塑社會，甚至改變人類的命運。你準備好迎接這場挑戰了嗎？本講座將深入剖析AI時代的機遇與危機，教你如何避免被AI掌控人生，讓這股力量成為你無限可能的助力，而非威脅你存在的魔影。<br><br>這不僅是科技愛好者的專屬課題，而是每個人必須掌握的未來生存密碼。現在就加入我們，確保你在AI時代屹立不倒！</p>
+                            <div class="mt-auto">
+                                <span class="badge bg-secondary w-100">直播尚未開始</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- 第三場 -->
+                <div class="col-md-4">
+                    <div class="card d-flex flex-column h-100 shadow-sm">
+                        <div class="ratio ratio-16x9">
+                            <iframe src="https://www.youtube.com/embed/PrrGykOKSdg" title="九紫離火時代生存指南" allowfullscreen></iframe>
+                        </div>
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title">九紫離火時代生存指南</h5>
+                            <h6 class="card-subtitle mb-2 text-muted">2025/07/17</h6>
+                            <p class="card-text small">如何撰寫未來二十年夢時代的虛幻人生新劇本？<br><br>九紫離火時代即將揭幕，這是一個意識覺醒、虛實交融的夢幻新紀元。你準備好迎接這場前所未有的變革了嗎？本講座將解碼未來二十年的關鍵趨勢，揭示九紫離火能量如何重塑生存模式、財富結構與社會樣貌，並帶你一步步撰寫屬於自己的新時代人生劇本。<br><br>這是一場智慧與創造力的革命盛宴，邀請你共同開啟未來的無限可能！</p>
+                            <div class="mt-auto">
+                                <span class="badge bg-secondary w-100">直播尚未開始</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <hr class="my-5">
+            <h2 class="mb-4 text-center fw-bold">下半場</h2>
+            <div class="row g-4">
+                <!-- 第四場 -->
+                <div class="col-md-4">
+                    <div class="card d-flex flex-column h-100 shadow-sm">
+                        <div class="ratio ratio-16x9">
+                            <iframe src="https://www.youtube.com/embed/PrrGykOKSdg" title="超腦駭客翻轉衰老祕法" allowfullscreen></iframe>
+                        </div>
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title">超腦駭客翻轉衰老祕法</h5>
+                            <h6 class="card-subtitle mb-2 text-muted">2025/08/14</h6>
+                            <p class="card-text small">如何利用生物鐘擺逆轉衰老，啟動逆齡回春的超級秘法？<br><br>人體的時間並非線性，而是可被重新編程的「生物鐘擺」。透過正確的頻率調節，你可以突破生理年齡的限制，讓身體回到巔峰狀態。這場講座將深度揭密如何運用「生物時鐘」調整你的能量運作，掌握逆轉衰老的關鍵技術，讓你打破時間限制，擁有真正的青春密碼！</p>
+                            <div class="mt-auto">
+                                <span class="badge bg-secondary mb-2 w-100">直播尚未開始</span>
+                                <a href="https://www.accupass.com/event/2503140558201478640741" target="_blank" class="btn btn-primary w-100">購票連結</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- 第五場 -->
+                <div class="col-md-4">
+                    <div class="card d-flex flex-column h-100 shadow-sm">
+                        <div class="ratio ratio-16x9">
+                            <iframe src="https://www.youtube.com/embed/PrrGykOKSdg" title="超秘術：生命區塊鏈" allowfullscreen></iframe>
+                        </div>
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title">超秘術：生命區塊鏈</h5>
+                            <h6 class="card-subtitle mb-2 text-muted">2025/09/18</h6>
+                            <p class="card-text small">如何掌握獲得成千上萬倍人生力量勇闖世界的超秘術？<br><br>你相信自己目前使用的力量不到萬分之一嗎？大多數人的潛能被時間、業力與無意識選擇封鎖，真正的能量仍沉睡於靈魂深處。本講座將透過莫子秘傳引導，教你解鎖「生命區塊鍊」，收回散落時空的能量，讓機運、財富與影響力呈指數級爆發。<br><br>這是一場突破現實極限的進化之旅，準備好開啟你的無限人生了嗎？</p>
+                            <div class="mt-auto">
+                                <span class="badge bg-secondary mb-2 w-100">直播尚未開始</span>
+                                <a href="https://www.accupass.com/event/2503140558201478640741" target="_blank" class="btn btn-primary w-100">購票連結</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- 第六場 -->
+                <div class="col-md-4">
+                    <div class="card d-flex flex-column h-100 shadow-sm">
+                        <div class="ratio ratio-16x9">
+                            <iframe src="https://www.youtube.com/embed/PrrGykOKSdg" title="未來人類最強『空實力』" allowfullscreen></iframe>
+                        </div>
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title">未來人類最強『空實力』</h5>
+                            <h6 class="card-subtitle mb-2 text-muted">2025/10/16</h6>
+                            <p class="card-text small">獨家傳授未來時代密技，擁有翻轉時空創世量子能力。<br><br>你是否覺得眼前的世界只是冰山一角？未來人類的終極力量不在物質，而在「空實力」——一種穿梭時空、創造實相的超凡能力。本講座將揭示未來時代的獨家密技，透過莫子秘傳引導，讓你掌握量子創世法則，突破時間束縛，重新編寫命運劇本。<br><br>現在，是時候喚醒你的超凡潛能，踏入超越維度的全新生命境界！</p>
+                            <div class="mt-auto">
+                                <span class="badge bg-secondary mb-2 w-100">直播尚未開始</span>
+                                <a href="https://www.accupass.com/event/2503140558201478640741" target="_blank" class="btn btn-primary w-100">購票連結</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- 直播活動區塊結束 -->
+    </main>
+
+    <!-- 聯票福利區塊（移至頁尾上方） -->
+    <section class="container mb-0">
+        <div class="p-4 bg-white rounded-3 shadow-sm border border-2 border-primary-subtle">
+            <h3 class="fw-bold mb-3" style="color:#7c3aed;">聯票享 10 天回放福利</h3>
+            <ul class="mb-3">
+                <li>從該場直播隔日起計算 10 天，期限後講座影片將無法再播放。</li>
+            </ul>
+            <div class="mb-2">例 : 若您購買上半場聯票，則享有三場講座的回放觀看福利，觀賞時限如下：</div>
+            <ul class="mb-0">
+                <li>5/15 講座，回放觀賞期限為 5/16~5/25</li>
+                <li>6/19 講座，回放觀賞期限為 6/20~6/29</li>
+                <li>7/17 講座，回放觀賞期限為 7/18~7/27</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-light text-center text-lg-start mt-auto py-3">
+        <div class="container d-flex flex-column flex-md-row justify-content-between align-items-center">
+            <div class="mb-2 mb-md-0">
+                &copy; 2025 App. All rights reserved.
+            </div>
+            <div>
+                <a href="#" class="me-3" target="_blank" rel="noopener" title="YouTube 頻道"><img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/youtube.svg" alt="YouTube" width="24" height="24"></a>
+                <a href="#" class="me-3" target="_blank" rel="noopener" title="Facebook 官網"><img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/facebook.svg" alt="Facebook" width="24" height="24"></a>
+                <a href="#" target="_blank" rel="noopener" title="Instagram"><img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/instagram.svg" alt="Instagram" width="24" height="24"></a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    // 倒數計時目標日期：2025/05/15 00:00:00
+    const countdownTarget = new Date('2025-05-15T00:00:00+08:00');
+    function updateCountdown() {
+        const now = new Date();
+        let diff = countdownTarget - now;
+        if (diff < 0) diff = 0;
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+        const minutes = Math.floor((diff / (1000 * 60)) % 60);
+        const seconds = Math.floor((diff / 1000) % 60);
+        document.getElementById('countdown').textContent = `${days} 天 ${hours} 時 ${minutes} 分 ${seconds} 秒`;
+    }
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
+    </script>
+</body>
+</html>

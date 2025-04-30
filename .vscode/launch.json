@@ -1,0 +1,16 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "vf-life",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "env": { 
+                "PIPENV_PYTHON": "3.11", 
+            },
+            "python": "/Users/rolence/.local/share/virtualenvs/vf-timeline-OJszKKn5/bin/python" // 指定新的 pipenv 虛擬環境 Python 路徑
+        }
+    ]
+}
