@@ -5,7 +5,11 @@ body {
 }
 
 .navbar {
-    background: linear-gradient(90deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
+  background: linear-gradient(135deg, 
+    var(--color-primary) 0%, 
+    var(--color-primary-mid) 35%, 
+    var(--color-primary-light) 70%, 
+    var(--color-primary-pink) 100%);
 }
 
 .navbar .navbar-brand, .navbar .nav-link {
@@ -70,3 +74,5 @@ footer a:hover img {
     background: var(--color-primary-light);
     border-color: var(--color-primary-light);
 }
+
+
