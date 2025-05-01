@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, session
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'  # Needed for session management and flashing messages
@@ -53,6 +53,12 @@ def forgot_password():
         flash('重設密碼信已寄出，請檢查您的信箱', 'info')
         return redirect(url_for('login'))
     return render_template('forgot_password.html')
+
+@app.route('/logout')
+def logout():
+    session.clear()
+    flash('您已成功登出', 'success')
+    return redirect(url_for('login'))
 
 @app.errorhandler(404)
 def page_not_found(e):
