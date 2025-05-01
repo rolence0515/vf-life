@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session
+import requests
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'  # Needed for session management and flashing messages
@@ -21,6 +22,27 @@ def login():
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
+        hcaptcha_token = request.form.get('h-captcha-response')
+        if not hcaptcha_token:
+            flash('請完成驗證碼', 'danger')
+            return render_template('login.html')
+        # hCaptcha 驗證
+        hcaptcha_secret = 'ES_e3cff9ee84a04dc08df9f3543d599641'  # 請換成你的 secret key
+        verify_url = 'https://hcaptcha.com/siteverify'
+        data = {
+            'secret': hcaptcha_secret,
+            'response': hcaptcha_token,
+            'remoteip': request.remote_addr
+        }
+        try:
+            resp = requests.post(verify_url, data=data, timeout=5)
+            result = resp.json()
+            if not result.get('success'):
+                flash('驗證碼失敗，請重試', 'danger')
+                return render_template('login.html')
+        except Exception:
+            flash('驗證服務異常，請稍後再試', 'danger')
+            return render_template('login.html')
         # 這裡可加入實際驗證邏輯，暫時只做簡單判斷
         if username == 'admin' and password == 'admin':
             flash('登入成功', 'success')
