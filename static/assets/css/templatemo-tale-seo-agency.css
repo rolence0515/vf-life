@@ -1990,3 +1990,38 @@ body {
     border-radius: 23px;
   }
 }
+
+/* 購票按鈕右上角樣式 */
+.btn-buy-ticket {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 2;
+  background: #c03afe;
+  color: #fff !important;
+  padding: 8px 18px;
+  border-radius: 20px;
+  font-size: 15px;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  transition: background 0.2s, color 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.btn-buy-ticket:hover {
+  background: #5b03e4;
+  color: #fff !important;
+  text-decoration: none;
+}
+.img-btn-wrapper {
+  position: relative;
+}
+@media (max-width: 576px) {
+  .btn-buy-ticket {
+    top: 6px;
+    right: 6px;
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+}
