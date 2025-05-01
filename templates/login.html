@@ -20,19 +20,30 @@
           <div class="col-md-8 col-lg-6 col-xxl-3">
             <div class="card mb-0">
               <div class="card-body">
-                <div class="d-flex align-items-center justify-content-center py-3 w-100">
+                <a href="/" class="d-flex align-items-center justify-content-center py-3 w-100 text-reset"
+                  style="text-decoration:none; color:inherit;">
                   <img src="/static/imgs/vf_logo.png" alt="" style="height:32px;width:auto;" class="me-2" />
                   <span class="fw-bold fs-5 d-inline-block">直播回放後台</span>
-                </div>
+                </a>
                 <p class="text-center">雙生紫焰</p>
-                <form>
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                  {% if messages %}
+                    {% for category, message in messages %}
+                      <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }}" role="alert">
+                        {{ message }}
+                      </div>
+                    {% endfor %}
+                  {% endif %}
+                {% endwith %}
+                <!-- 登入表單 -->
+                <form method="POST" action="{{ url_for('login') }}">
                   <div class="mb-3">
                     <label for="exampleInputEmail1" class="form-label">使用者名稱</label>
-                    <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+                    <input type="text" class="form-control" id="exampleInputEmail1" name="username" aria-describedby="emailHelp">
                   </div>
                   <div class="mb-4">
                     <label for="exampleInputPassword1" class="form-label">密碼</label>
-                    <input type="password" class="form-control" id="exampleInputPassword1">
+                    <input type="password" class="form-control" id="exampleInputPassword1" name="password">
                   </div>
                   <div class="d-flex align-items-center justify-content-between mb-4">
                     <div class="form-check">
@@ -41,9 +52,9 @@
                         記住此裝置
                       </label>
                     </div>
-                    <a class="text-primary fw-bold" href="./index.html">忘記密碼？</a>
+                    <a class="text-primary fw-bold" href="/forgot-password">忘記密碼？</a>
                   </div>
-                  <a href="./index.html" class="btn btn-primary w-100 py-8 fs-4 mb-4">登入</a>
+                  <button type="submit" class="btn btn-primary w-100 py-8 fs-4 mb-4">登入</button>
                 </form>
               </div>
             </div>
