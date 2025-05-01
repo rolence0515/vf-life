@@ -8,6 +8,24 @@
   <link rel="shortcut icon" type="image/png" href="/static/assets/images/logos/seodashlogo.png" />
   <link rel="stylesheet" href="../../node_modules/simplebar/dist/simplebar.min.css">
   <link rel="stylesheet" href="/static/assets/css/styles.min.css" />
+  <style>
+    @media (max-width: 576px) {
+      .sticky-play-mobile {
+        position: sticky;
+        right: 0;
+        background: #fff;
+        z-index: 2;
+        box-shadow: -2px 0 4px rgba(0, 0, 0, 0.03);
+      }
+
+      .sticky-play-mobile-th {
+        position: sticky;
+        right: 0;
+        background: #fff;
+        z-index: 3;
+      }
+    }
+  </style>
 </head>
 
 <body>
@@ -23,7 +41,7 @@
             <a href="/" class="text-nowrap logo-img me-2">
               <img src="/static/imgs/vf_logo.png" alt="" style="height:32px;width:auto;" />
             </a>
-            <span class="fw-bold fs-5 d-none d-sm-inline-block">直播回放後台</span>
+            <span class="fw-bold fs-5 d-inline-block">直播回放後台</span>
           </div>
           <div class="close-btn d-xl-none d-block sidebartoggler cursor-pointer" id="sidebarCollapse">
             <i class="ti ti-x fs-8"></i>
@@ -67,13 +85,13 @@
               <li class="nav-item dropdown">
                 <a class="nav-link nav-icon-hover" href="javascript:void(0)" id="drop2" data-bs-toggle="dropdown"
                   aria-expanded="false">
-                  <img src="/static/assets/images/profile/user-1.jpg" alt="" width="35" height="35" class="rounded-circle">
+                  <iconify-icon icon="ph:user-circle-light" width="35" height="35" class="rounded-circle"></iconify-icon>
                 </a>
                 <div class="dropdown-menu dropdown-menu-end dropdown-menu-animate-up" aria-labelledby="drop2">
                   <div class="message-body">
                     <a href="javascript:void(0)" class="d-flex align-items-center gap-2 dropdown-item">
                       <i class="ti ti-user fs-6"></i>
-                      <p class="mb-0 fs-3">My Profile</p>
+                      <p class="mb-0 fs-3">rolence0515@gmail.com</p>
                     </a>
                     <a href="/logout" class="btn btn-outline-primary mx-3 mt-2 d-block">登出</a>
                   </div>
@@ -96,7 +114,7 @@
                     <th scope="col" class="ps-0">聯票</th>
                     <th scope="col">標題</th>
                     <th scope="col" class="text-center">講座回放期限</th>
-                    <th scope="col" class="text-center">播放</th>
+                    <th scope="col" class="text-center d-none d-sm-table-cell sticky-play-mobile-th">播放</th>
                   </tr>
                 </thead>
                 <tbody class="table-group-divider">
@@ -105,38 +123,50 @@
                     <td>上半場</td>
                     <td>新紀元超個人經濟學</td>
                     <td class="text-center">2025/05/16 ~ 2025/05/25</td>
-                    <td class="text-center"><button class="btn btn-sm btn-outline-primary play-vimeo" data-vimeo="https://player.vimeo.com/video/123456789">觀看回放</button></td>
+                    <td class="text-center sticky-play-mobile">
+                      <button class="btn btn-sm btn-outline-primary play-vimeo" data-vimeo="https://player.vimeo.com/video/123456789">觀看回放</button>
+                    </td>
                   </tr>
                   <tr>
                     <td>上半場</td>
                     <td>掌握 AI 時代的應對之道</td>
                     <td class="text-center">2025/06/20 ~ 2025/06/29</td>
-                    <td class="text-center"><button class="btn btn-sm btn-outline-primary play-vimeo" data-vimeo="https://player.vimeo.com/video/123456789">觀看回放</button></td>
+                    <td class="text-center sticky-play-mobile">
+                      <button class="btn btn-sm btn-outline-primary play-vimeo" data-vimeo="https://player.vimeo.com/video/123456789">觀看回放</button>
+                    </td>
                   </tr>
                   <tr>
                     <td>上半場</td>
                     <td>九紫離火時代生存指南</td>
                     <td class="text-center">2025/07/18 ~ 2025/07/27</td>
-                    <td class="text-center"><button class="btn btn-sm btn-outline-primary play-vimeo" data-vimeo="https://player.vimeo.com/video/123456789">觀看回放</button></td>
+                    <td class="text-center sticky-play-mobile">
+                      <button class="btn btn-sm btn-outline-primary play-vimeo" data-vimeo="https://player.vimeo.com/video/123456789">觀看回放</button>
+                    </td>
                   </tr>
                   <!-- 下半場三場 -->
                   <tr>
                     <td>下半場</td>
                     <td>超腦駭客翻轉衰老祕法</td>
                     <td class="text-center">2025/08/15 ~ 2025/08/24</td>
-                    <td class="text-center"><button class="btn btn-sm btn-outline-primary play-vimeo" data-vimeo="https://player.vimeo.com/video/123456789">觀看回放</button></td>
+                    <td class="text-center sticky-play-mobile">
+                      <button class="btn btn-sm btn-outline-primary play-vimeo" data-vimeo="https://player.vimeo.com/video/123456789">觀看回放</button>
+                    </td>
                   </tr>
                   <tr>
                     <td>下半場</td>
                     <td>超秘術：生命區塊鏈</td>
                     <td class="text-center">2025/09/19 ~ 2025/09/28</td>
-                    <td class="text-center"><button class="btn btn-sm btn-outline-primary play-vimeo" data-vimeo="https://player.vimeo.com/video/123456789">觀看回放</button></td>
+                    <td class="text-center sticky-play-mobile">
+                      <button class="btn btn-sm btn-outline-primary play-vimeo" data-vimeo="https://player.vimeo.com/video/123456789">觀看回放</button>
+                    </td>
                   </tr>
                   <tr>
                     <td>下半場</td>
                     <td>未來人類最強『空實力』</td>
                     <td class="text-center">2025/10/17 ~ 2025/10/26</td>
-                    <td class="text-center"><button class="btn btn-sm btn-outline-primary play-vimeo" data-vimeo="https://player.vimeo.com/video/123456789">觀看回放</button></td>
+                    <td class="text-center sticky-play-mobile">
+                      <button class="btn btn-sm btn-outline-primary play-vimeo" data-vimeo="https://player.vimeo.com/video/123456789">觀看回放</button>
+                    </td>
                   </tr>
                 </tbody>
               </table>
