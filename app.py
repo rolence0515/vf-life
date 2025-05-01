@@ -54,5 +54,9 @@ def forgot_password():
         return redirect(url_for('login'))
     return render_template('forgot_password.html')
 
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('404.html'), 404
+
 if __name__ == '__main__':
     app.run(debug=True, port=8080)
