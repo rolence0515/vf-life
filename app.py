@@ -1,8 +1,19 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 import requests
+from functools import wraps
+import secrets
 
 app = Flask(__name__)
-app.secret_key = 'your_secret_key'  # Needed for session management and flashing messages
+app.secret_key = secrets.token_urlsafe(32)  # 使用隨機產生的安全密鑰
+
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not session.get('logged_in'):
+            flash('請先登入', 'warning')
+            return redirect(url_for('login'))
+        return f(*args, **kwargs)
+    return decorated_function
 
 @app.route('/')
 def home():
@@ -14,6 +25,7 @@ def orders():
     return render_template('orders.html')
 
 @app.route('/admin')
+@login_required
 def admin():
     return render_template('admin.html')
 
@@ -45,6 +57,7 @@ def login():
             return render_template('login.html')
         # 這裡可加入實際驗證邏輯，暫時只做簡單判斷
         if username == 'admin' and password == 'admin':
+            session['logged_in'] = True
             flash('登入成功', 'success')
             return redirect(url_for('admin'))
         else:
