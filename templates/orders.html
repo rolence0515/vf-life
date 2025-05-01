@@ -1,10 +1,10 @@
 {% extends 'base.html' %}
-{% block title %}我的直播訂單清單{% endblock %}
+{% block title %}我的直播回放清單{% endblock %}
 {% block content %}
 <nav aria-label="breadcrumb">
   <ol class="breadcrumb custom-breadcrumb">
     <li class="breadcrumb-item"><a href="/">首頁</a></li>
-    <li class="breadcrumb-item active" aria-current="page">我的直播訂單清單</li>
+    <li class="breadcrumb-item active" aria-current="page">我的直播回放清單</li>
   </ol>
 </nav>
 <style>
@@ -38,37 +38,89 @@
 }
 </style>
 <div class="container my-5">
-    <h2 class="mb-4 text-center fw-bold">我的直播訂單清單</h2>
+    <h2 class="mb-4 text-center fw-bold">我的直播回放清單</h2>
     <div class="table-responsive">
         <table class="table table-bordered align-middle text-center">
             <thead class="table-primary">
                 <tr>
-                    <th>訂單編號</th>
-                    <th>票種</th>
-                    <th>購買日期</th>
-                    <th>金額</th>
-                    <th>狀態</th>
-                    <th>操作</th>
+                    <th>聯票</th>
+                    <th>標題</th>
+                    <th>講座回放期限</th>
+                    <th>播放</th>
                 </tr>
             </thead>
             <tbody>
+                <!-- 上半場三場 -->
                 <tr>
-                    <td>20240515001</td>
-                    <td>上半場聯票</td>
-                    <td>2025/04/01</td>
-                    <td>NT$ 2,400</td>
-                    <td><span class="badge bg-success">已付款</span></td>
-                    <td><a href="#" class="btn btn-sm btn-outline-primary">觀看直播</a></td>
+                    <td>上半場</td>
+                    <td>新紀元超個人經濟學</td>
+                    <td>2025/05/16 ~ 2025/05/25</td>
+                    <td><button class="btn btn-sm btn-outline-primary play-vimeo" data-vimeo="https://player.vimeo.com/video/123456789">觀看回放</button></td>
                 </tr>
                 <tr>
-                    <td>20240515002</td>
-                    <td>下半場聯票</td>
-                    <td>2025/04/02</td>
-                    <td>NT$ 2,400</td>
-                    <td><span class="badge bg-success">已付款</span></td>
-                    <td><a href="#" class="btn btn-sm btn-outline-primary">觀看直播</a></td>
+                    <td>上半場</td>
+                    <td>掌握 AI 時代的應對之道</td>
+                    <td>2025/06/20 ~ 2025/06/29</td>
+                    <td><button class="btn btn-sm btn-outline-primary play-vimeo" data-vimeo="https://player.vimeo.com/video/123456789">觀看回放</button></td>
+                </tr>
+                <tr>
+                    <td>上半場</td>
+                    <td>九紫離火時代生存指南</td>
+                    <td>2025/07/18 ~ 2025/07/27</td>
+                    <td><button class="btn btn-sm btn-outline-primary play-vimeo" data-vimeo="https://player.vimeo.com/video/123456789">觀看回放</button></td>
+                </tr>
+                <!-- 下半場三場 -->
+                <tr>
+                    <td>下半場</td>
+                    <td>超腦駭客翻轉衰老祕法</td>
+                    <td>2025/08/15 ~ 2025/08/24</td>
+                    <td><button class="btn btn-sm btn-outline-primary play-vimeo" data-vimeo="https://player.vimeo.com/video/123456789">觀看回放</button></td>
+                </tr>
+                <tr>
+                    <td>下半場</td>
+                    <td>超秘術：生命區塊鏈</td>
+                    <td>2025/09/19 ~ 2025/09/28</td>
+                    <td><button class="btn btn-sm btn-outline-primary play-vimeo" data-vimeo="https://player.vimeo.com/video/123456789">觀看回放</button></td>
+                </tr>
+                <tr>
+                    <td>下半場</td>
+                    <td>未來人類最強『空實力』</td>
+                    <td>2025/10/17 ~ 2025/10/26</td>
+                    <td><button class="btn btn-sm btn-outline-primary play-vimeo" data-vimeo="https://player.vimeo.com/video/123456789">觀看回放</button></td>
                 </tr>
             </tbody>
+            <!-- Vimeo Modal -->
+            <div class="modal fade" id="vimeoModal" tabindex="-1" aria-labelledby="vimeoModalLabel" aria-hidden="true">
+              <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="vimeoModalLabel">講座回放</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body">
+                    <div class="ratio ratio-16x9">
+                      <iframe id="vimeoPlayer" src="" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                var vimeoModal = new bootstrap.Modal(document.getElementById('vimeoModal'));
+                var vimeoPlayer = document.getElementById('vimeoPlayer');
+                document.querySelectorAll('.play-vimeo').forEach(function(btn) {
+                    btn.addEventListener('click', function() {
+                        var vimeoUrl = btn.getAttribute('data-vimeo');
+                        vimeoPlayer.src = vimeoUrl + '?autoplay=1';
+                        vimeoModal.show();
+                    });
+                });
+                document.getElementById('vimeoModal').addEventListener('hidden.bs.modal', function () {
+                    vimeoPlayer.src = '';
+                });
+            });
+            </script>
         </table>
     </div>
 </div>
