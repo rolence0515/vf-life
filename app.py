@@ -11,5 +11,9 @@ def orders():
     # 假資料直接在模板中渲染
     return render_template('orders.html')
 
+@app.route('/admin')
+def admin():
+    return render_template('admin.html')
+
 if __name__ == '__main__':
     app.run(debug=True, port=8080)
