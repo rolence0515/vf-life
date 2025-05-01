@@ -1,0 +1,77 @@
+# 資料庫結構說明
+
+## 1. user 使用者表
+
+| 欄位名稱     | 型別         | 說明             |
+| ------------ | ------------ | ---------------- |
+| id           | SERIAL       | 使用者唯一ID     |
+| email        | VARCHAR(255) | 帳號(Email，唯一)|
+| password     | VARCHAR(255) | 密碼(加密不可逆) |
+| created_at   | TIMESTAMP    | 建立日期         |
+| updated_at   | TIMESTAMP    | 修改日期         |
+
+```sql
+CREATE TABLE "user" (
+  id SERIAL PRIMARY KEY, -- 使用者唯一ID
+  email VARCHAR(255) UNIQUE NOT NULL, -- 帳號(Email，唯一)
+  password VARCHAR(255) NOT NULL, -- 密碼(加密不可逆)
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, -- 建立日期
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP -- 修改日期
+);
+```
+
+---
+
+## 2. user_videos 使用者可觀看影片表
+
+| 欄位名稱     | 型別      | 說明             |
+| ------------ | --------- | ---------------- |
+| id           | SERIAL    | 唯一ID           |
+| user_id      | INTEGER   | 使用者ID         |
+| video_id     | INTEGER   | 影片ID           |
+| created_at   | TIMESTAMP | 建立日期         |
+| updated_at   | TIMESTAMP | 修改日期         |
+
+```sql
+CREATE TABLE user_videos (
+  id SERIAL PRIMARY KEY, -- 唯一ID
+  user_id INTEGER NOT NULL, -- 使用者ID
+  video_id INTEGER NOT NULL, -- 影片ID
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, -- 建立日期
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, -- 修改日期
+  FOREIGN KEY (user_id) REFERENCES "user"(id),
+  FOREIGN KEY (video_id) REFERENCES videos(id)
+);
+```
+
+---
+
+## 3. videos 官方影片表
+
+| 欄位名稱     | 型別         | 說明                   |
+| ------------ | ------------ | ---------------------- |
+| id           | SERIAL       | 影片唯一ID             |
+| type         | VARCHAR(32)  | 影片來源(vimeo, yt等)  |
+| url          | TEXT         | 影片網址               |
+| title        | VARCHAR(255) | 標題                   |
+| description  | TEXT         | 說明                   |
+| created_at   | TIMESTAMP    | 建立日期               |
+| updated_at   | TIMESTAMP    | 修改日期               |
+| available_at | TIMESTAMP    | 上架日                 |
+| expired_at   | TIMESTAMP    | 下架日(過期不可觀看)   |
+
+```sql
+CREATE TABLE videos (
+  id SERIAL PRIMARY KEY, -- 影片唯一ID
+  type VARCHAR(32) NOT NULL, -- 影片來源(vimeo, yt等)
+  url TEXT NOT NULL, -- 影片網址
+  title VARCHAR(255) NOT NULL, -- 標題
+  description TEXT, -- 說明
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, -- 建立日期
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, -- 修改日期
+  available_at TIMESTAMP NOT NULL, -- 上架日
+  expired_at TIMESTAMP NOT NULL -- 下架日(過期不可觀看)
+);
+```
+
+---
