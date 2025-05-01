@@ -37,7 +37,7 @@
               <span class="hide-menu">首頁</span>
             </li>
             <li class="sidebar-item">
-              <a class="sidebar-link" href="./index.html" aria-expanded="false">
+              <a class="sidebar-link"  aria-expanded="false">
                 <span>
                   <iconify-icon icon="solar:home-smile-bold-duotone" class="fs-6"></iconify-icon>
                 </span>
@@ -75,15 +75,7 @@
                       <i class="ti ti-user fs-6"></i>
                       <p class="mb-0 fs-3">My Profile</p>
                     </a>
-                    <a href="javascript:void(0)" class="d-flex align-items-center gap-2 dropdown-item">
-                      <i class="ti ti-mail fs-6"></i>
-                      <p class="mb-0 fs-3">My Account</p>
-                    </a>
-                    <a href="javascript:void(0)" class="d-flex align-items-center gap-2 dropdown-item">
-                      <i class="ti ti-list-check fs-6"></i>
-                      <p class="mb-0 fs-3">My Task</p>
-                    </a>
-                    <a href="./authentication-login.html" class="btn btn-outline-primary mx-3 mt-2 d-block">Logout</a>
+                    <a href="/logout" class="btn btn-outline-primary mx-3 mt-2 d-block">登出</a>
                   </div>
                 </div>
               </li>
@@ -101,35 +93,51 @@
               <table class="table text-nowrap align-middle mb-0">
                 <thead>
                   <tr class="border-2 border-bottom border-primary border-0">
-                    <th scope="col" class="ps-0">標題</th>
-                    <th scope="col">連結</th>
-                    <th scope="col" class="text-center">觀看次數</th>
-                    <th scope="col" class="text-center">上架日期</th>
+                    <th scope="col" class="ps-0">聯票</th>
+                    <th scope="col">標題</th>
+                    <th scope="col" class="text-center">講座回放期限</th>
+                    <th scope="col" class="text-center">播放</th>
                   </tr>
                 </thead>
                 <tbody class="table-group-divider">
-                  <!-- 範例資料，請依實際資料替換 -->
+                  <!-- 上半場三場 -->
                   <tr>
-                    <th scope="row" class="ps-0 fw-medium">
-                      <span class="table-link1 text-truncate d-block">2024/4/30 直播：AI新知分享</span>
-                    </th>
-                    <td>
-                      <a href="/replay/1" class="link-primary text-dark fw-medium d-block">/replay/1</a>
-                    </td>
-                    <td class="text-center fw-medium">1,234</td>
-                    <td class="text-center fw-medium">2024-04-30</td>
+                    <td>上半場</td>
+                    <td>新紀元超個人經濟學</td>
+                    <td class="text-center">2025/05/16 ~ 2025/05/25</td>
+                    <td class="text-center"><button class="btn btn-sm btn-outline-primary play-vimeo" data-vimeo="https://player.vimeo.com/video/123456789">觀看回放</button></td>
                   </tr>
                   <tr>
-                    <th scope="row" class="ps-0 fw-medium">
-                      <span class="table-link1 text-truncate d-block">2024/4/29 直播：產品發表會</span>
-                    </th>
-                    <td>
-                      <a href="/replay/2" class="link-primary text-dark fw-medium d-block">/replay/2</a>
-                    </td>
-                    <td class="text-center fw-medium">987</td>
-                    <td class="text-center fw-medium">2024-04-29</td>
+                    <td>上半場</td>
+                    <td>掌握 AI 時代的應對之道</td>
+                    <td class="text-center">2025/06/20 ~ 2025/06/29</td>
+                    <td class="text-center"><button class="btn btn-sm btn-outline-primary play-vimeo" data-vimeo="https://player.vimeo.com/video/123456789">觀看回放</button></td>
                   </tr>
-                  <!-- ...可繼續新增更多直播回放資料... -->
+                  <tr>
+                    <td>上半場</td>
+                    <td>九紫離火時代生存指南</td>
+                    <td class="text-center">2025/07/18 ~ 2025/07/27</td>
+                    <td class="text-center"><button class="btn btn-sm btn-outline-primary play-vimeo" data-vimeo="https://player.vimeo.com/video/123456789">觀看回放</button></td>
+                  </tr>
+                  <!-- 下半場三場 -->
+                  <tr>
+                    <td>下半場</td>
+                    <td>超腦駭客翻轉衰老祕法</td>
+                    <td class="text-center">2025/08/15 ~ 2025/08/24</td>
+                    <td class="text-center"><button class="btn btn-sm btn-outline-primary play-vimeo" data-vimeo="https://player.vimeo.com/video/123456789">觀看回放</button></td>
+                  </tr>
+                  <tr>
+                    <td>下半場</td>
+                    <td>超秘術：生命區塊鏈</td>
+                    <td class="text-center">2025/09/19 ~ 2025/09/28</td>
+                    <td class="text-center"><button class="btn btn-sm btn-outline-primary play-vimeo" data-vimeo="https://player.vimeo.com/video/123456789">觀看回放</button></td>
+                  </tr>
+                  <tr>
+                    <td>下半場</td>
+                    <td>未來人類最強『空實力』</td>
+                    <td class="text-center">2025/10/17 ~ 2025/10/26</td>
+                    <td class="text-center"><button class="btn btn-sm btn-outline-primary play-vimeo" data-vimeo="https://player.vimeo.com/video/123456789">觀看回放</button></td>
+                  </tr>
                 </tbody>
               </table>
             </div>
@@ -137,9 +145,7 @@
           </div>
         </div>
         <div class="py-6 px-6 text-center">
-          <p class="mb-0 fs-4">Design and Developed by <a href="https://adminmart.com/" target="_blank"
-              class="pe-1 text-primary text-decoration-underline">AdminMart.com</a> Distributed by <a href="https://themewagon.com/" target="_blank"
-              class="pe-1 text-primary text-decoration-underline">ThemeWagon</a></p>
+          <p class="mb-0 fs-5">© 2025 雙生紫焰 直播回放後台｜僅供聯票購買觀眾使用</p>
         </div>
       </div>
     </div>
@@ -150,6 +156,39 @@
   <script src="/static/assets/js/sidebarmenu.js"></script>
   <script src="/static/assets/js/app.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
+
+  <!-- Vimeo Modal -->
+  <div class="modal fade" id="vimeoModal" tabindex="-1" aria-labelledby="vimeoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="vimeoModalLabel">講座回放</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="ratio ratio-16x9">
+            <iframe id="vimeoPlayer" src="" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+  document.addEventListener('DOMContentLoaded', function() {
+      var vimeoModal = new bootstrap.Modal(document.getElementById('vimeoModal'));
+      var vimeoPlayer = document.getElementById('vimeoPlayer');
+      document.querySelectorAll('.play-vimeo').forEach(function(btn) {
+          btn.addEventListener('click', function() {
+              var vimeoUrl = btn.getAttribute('data-vimeo');
+              vimeoPlayer.src = vimeoUrl + '?autoplay=1';
+              vimeoModal.show();
+          });
+      });
+      document.getElementById('vimeoModal').addEventListener('hidden.bs.modal', function () {
+          vimeoPlayer.src = '';
+      });
+  });
+  </script>
 </body>
 
 </html>
