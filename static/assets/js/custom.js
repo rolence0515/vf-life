@@ -204,12 +204,17 @@
 	    var scrollPos = $(document).scrollTop();
 	    $('.nav a').each(function () {
 	        var currLink = $(this);
-	        var refElement = $(currLink.attr("href"));
-	        if (refElement.position().top <= scrollPos && refElement.position().top + refElement.height() > scrollPos) {
-	            $('.nav ul li a').removeClass("active");
-	            currLink.addClass("active");
-	        }
-	        else{
+	        var href = currLink.attr("href");
+	        // 只處理以 # 開頭且長度大於1的 anchor
+	        if (href && href.startsWith('#') && href.length > 1) {
+	            var refElement = $(href);
+	            if (refElement.length && refElement.position().top <= scrollPos && refElement.position().top + refElement.height() > scrollPos) {
+	                $('.nav ul li a').removeClass("active");
+	                currLink.addClass("active");
+	            } else {
+	                currLink.removeClass("active");
+	            }
+	        } else {
 	            currLink.removeClass("active");
 	        }
 	    });
