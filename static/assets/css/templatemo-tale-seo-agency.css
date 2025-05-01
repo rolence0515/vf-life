@@ -824,7 +824,7 @@ Banner Style
 
 .main-banner {
   position: relative;
-  padding: 295px 0px 0px 0px;
+  padding: 295px 0px 100px 0px;
 }
 
 .main-banner:after {
@@ -914,8 +914,8 @@ Services Style
 
 .services::before {
   content: url(../images/services-left.jpg);
-  top: 120px;
-  left: 0;
+  top: -40px;
+  left: -120px;
   position: absolute;
   width: 844px;
   height: 714px;
@@ -962,6 +962,8 @@ Services Style
 .services .service-item:hover h4 {
   color: #5b03e4;
 }
+
+
 
 /* 
 ---------------------------------------------
