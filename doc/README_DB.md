@@ -46,11 +46,34 @@ CREATE TABLE user_videos (
 
 ---
 
-## 3. videos 官方影片表
+## 3. series 影片系列表
+
+| 欄位名稱     | 型別         | 說明             |
+| ------------ | ------------ | ---------------- |
+| id           | SERIAL       | 系列唯一ID       |
+| name         | VARCHAR(255) | 系列名稱         |
+| description  | TEXT         | 系列說明         |
+| created_at   | TIMESTAMP    | 建立日期         |
+| updated_at   | TIMESTAMP    | 修改日期         |
+
+```sql
+CREATE TABLE series (
+  id SERIAL PRIMARY KEY, -- 系列唯一ID
+  name VARCHAR(255) NOT NULL, -- 系列名稱
+  description TEXT, -- 系列說明
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, -- 建立日期
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP -- 修改日期
+);
+```
+
+---
+
+## 4. videos 官方影片表
 
 | 欄位名稱       | 型別         | 說明                         |
 | -------------- | ------------ | ---------------------------- |
 | id             | SERIAL       | 影片唯一ID                   |
+| series_id      | INTEGER      | 所屬系列ID                   |
 | type           | VARCHAR(32)  | 影片來源(vimeo, yt等)        |
 | url            | TEXT         | 影片網址                     |
 | title          | VARCHAR(255) | 標題                         |
@@ -66,6 +89,7 @@ CREATE TABLE user_videos (
 ```sql
 CREATE TABLE videos (
   id SERIAL PRIMARY KEY, -- 影片唯一ID
+  series_id INTEGER, -- 所屬系列ID
   type VARCHAR(32) NOT NULL, -- 影片來源(vimeo, yt等)
   url TEXT NOT NULL, -- 影片網址
   title VARCHAR(255) NOT NULL, -- 標題
@@ -76,6 +100,7 @@ CREATE TABLE videos (
   expired_at TIMESTAMP NOT NULL, -- 下架日(過期不可觀看)
   buy_url TEXT, -- 購買連結
   buy_start_at TIMESTAMP, -- 開放購買日
-  buy_end_at TIMESTAMP -- 結束購買日
+  buy_end_at TIMESTAMP, -- 結束購買日
+  FOREIGN KEY (series_id) REFERENCES series(id)
 );
 ```
