@@ -24,6 +24,37 @@
         z-index: 3;
       }
     }
+
+    html,
+    body,
+    #app,
+    .page-wrapper,
+    .body-wrapper,
+    .container-fluid {
+      height: 100%;
+      min-height: 100vh;
+    }
+
+    .body-wrapper {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      background: #f7fafd;
+    }
+
+    .container-fluid {
+      flex: 1 0 auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card {
+      flex-shrink: 0;
+    }
+
+    .py-6.px-6.text-center {
+      margin-top: auto;
+    }
   </style>
 </head>
 
@@ -55,7 +86,7 @@
                 <span class="hide-menu">首頁</span>
               </li>
               <li v-for="(series, idx) in seriesList" :key="idx" :class="['sidebar-item', { active: String(activeSeriesId) === String(series.id) }]">
-                <a href="#" class="sidebar-link"  aria-expanded="false" @click.prevent="setActiveSeries(series.id)">
+                <a href="#" class="sidebar-link" aria-expanded="false" @click.prevent="setActiveSeries(series.id)">
                   <span>
                     <iconify-icon icon="solar:home-smile-bold-duotone" class="fs-6"></iconify-icon>
                   </span>
@@ -216,10 +247,6 @@
           document.getElementById('vimeoModal').addEventListener('hidden.bs.modal', () => {
               this.vimeoPlayer.src = '';
           });
-          // 自動選第一個系列為 active
-          if (this.seriesList.length > 0) {
-              this.activeSeriesId = this.seriesList[0].id;
-          }
       },
       methods: {
           openVimeo(url) {
