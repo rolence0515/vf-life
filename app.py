@@ -5,9 +5,11 @@ import secrets
 import psycopg2
 from config import config
 import os
+from datetime import timedelta
 
 app = Flask(__name__)
 app.secret_key = secrets.token_urlsafe(32)  # 使用隨機產生的安全密鑰
+app.permanent_session_lifetime = timedelta(days=30)  # 設定 session 有效期 30 天
 
 def login_required(f):
     @wraps(f)
@@ -22,15 +24,10 @@ def login_required(f):
 def home():
     return render_template('index.html')
 
-@app.route('/orders')
-def orders():
-    # 假資料直接在模板中渲染
-    return render_template('orders.html')
-
-@app.route('/admin')
+@app.route('/member_videos')
 @login_required
-def admin():
-    return render_template('admin.html')
+def member_videos():
+    return render_template('member_videos.html')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -61,8 +58,12 @@ def login():
         # 這裡可加入實際驗證邏輯，暫時只做簡單判斷
         if username == 'admin' and password == 'admin':
             session['logged_in'] = True
+            if request.form.get('remember_me'):
+                session.permanent = True  # 啟用長效 session
+            else:
+                session.permanent = False
             flash('登入成功', 'success')
-            return redirect(url_for('admin'))
+            return redirect(url_for('member_videos'))  # 修改這裡
         else:
             flash('帳號或密碼錯誤', 'danger')
     return render_template('login.html')
