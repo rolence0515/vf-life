@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, session
+from flask import Flask, render_template, request, redirect, url_for, flash, session, get_flashed_messages
 import requests
 from functools import wraps
 import secrets
@@ -6,6 +6,9 @@ import psycopg2
 from config import config
 import os
 from datetime import timedelta
+from lib.user_repository import UserRepository
+from lib.video_repository import VideoRepository
+import hashlib
 
 app = Flask(__name__)
 app.secret_key = secrets.token_urlsafe(32)  # 使用隨機產生的安全密鑰
@@ -27,7 +30,11 @@ def home():
 @app.route('/member_videos')
 @login_required
 def member_videos():
-    return render_template('member_videos.html')
+    user_email = session.get('user_email')
+    repo = VideoRepository()
+    video_list = repo.get_videos_with_status(user_email)
+    repo.close()
+    return render_template('member_videos.html', video_list=video_list)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -55,17 +62,24 @@ def login():
         except Exception:
             flash('驗證服務異常，請稍後再試', 'danger')
             return render_template('login.html')
-        # 這裡可加入實際驗證邏輯，暫時只做簡單判斷
-        if username == 'admin' and password == 'admin':
+        # 使用者資料庫驗證
+        repo = UserRepository()
+        user = repo.get_user_by_email(username)
+        if user and user['password'] == hashlib.sha256(password.encode()).hexdigest():
             session['logged_in'] = True
+            session['user_email'] = user['email']
             if request.form.get('remember_me'):
-                session.permanent = True  # 啟用長效 session
+                session.permanent = True
             else:
                 session.permanent = False
             flash('登入成功', 'success')
-            return redirect(url_for('member_videos'))  # 修改這裡
+            repo.close()
+            return redirect(url_for('member_videos'))
         else:
             flash('帳號或密碼錯誤', 'danger')
+        repo.close()
+    else:
+        get_flashed_messages()  # 清空殘留訊息
     return render_template('login.html')
 
 @app.route('/change-password', methods=['GET', 'POST'])
@@ -74,14 +88,30 @@ def change_password():
         old_password = request.form.get('old_password')
         new_password = request.form.get('new_password')
         confirm_password = request.form.get('confirm_password')
+        email = session.get('user_email')  # 假設 session 有存 email
+        if not email:
+            flash('請重新登入', 'danger')
+            return redirect(url_for('login'))
         if new_password != confirm_password:
             flash('新密碼與確認密碼不一致', 'danger')
         elif old_password == new_password:
             flash('新密碼不可與舊密碼相同', 'danger')
         else:
-            # 這裡應加入實際密碼驗證與更新邏輯
-            flash('密碼修改成功', 'success')
-            return redirect(url_for('login'))
+            repo = UserRepository()
+            user = repo.get_user_by_email(email)
+            if not user:
+                flash('找不到使用者', 'danger')
+            else:
+                old_hash = hashlib.sha256(old_password.encode()).hexdigest()
+                if user['password'] != old_hash:
+                    flash('舊密碼錯誤', 'danger')
+                else:
+                    new_hash = hashlib.sha256(new_password.encode()).hexdigest()
+                    repo.update_password(user['id'], new_hash)
+                    flash('密碼修改成功', 'success')
+                    repo.close()
+                    return redirect(url_for('login'))
+            repo.close()
     return render_template('change_password.html')
 
 @app.route('/forgot-password', methods=['GET', 'POST'])

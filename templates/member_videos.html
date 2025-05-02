@@ -99,7 +99,11 @@
                     <div class="message-body">
                       <a href="javascript:void(0)" class="d-flex align-items-center gap-2 dropdown-item">
                         <i class="ti ti-user fs-6"></i>
-                        <p class="mb-0 fs-3">rolence0515@gmail.com</p>
+                        <p class="mb-0 fs-3">{{ session['user_email'] }}</p>
+                      </a>
+                      <a href="/change-password" class="d-flex align-items-center gap-2 dropdown-item">
+                        <i class="ti ti-key fs-6"></i>
+                        <p class="mb-0 fs-3">修改密碼</p>
                       </a>
                       <a href="/logout" class="btn btn-outline-primary mx-3 mt-2 d-block">登出</a>
                     </div>
@@ -142,7 +146,7 @@
                   </thead>
                   <tbody class="table-group-divider">
                     <tr v-for="(item, idx) in videoList" :key="idx">
-                      <td>[[ item.session ]]</td>
+                      <td>[[ item.series ]]</td>
                       <td>[[ item.title ]]</td>
                       <td class="text-center">[[ item.period ]]</td>
                       <td class="text-center sticky-play-mobile">
@@ -202,20 +206,7 @@
       delimiters: ['[[', ']]'],
       data() {
           return {
-              videoList: [
-                  // 狀態說明：
-                  // bought_not_started：已購買，尚未開始
-                  // bought_open：已購買，已開放回放
-                  // bought_ended：已購買，回放結束
-                  // not_bought_can_buy：未購買，可購買
-                  // not_bought_expired：未購買，不可購買（已過期限）
-                  { session: '上半場', title: '新紀元超個人經濟學', period: '2025/05/16 ~ 2025/05/25', vimeoUrl: 'https://player.vimeo.com/video/123456789', status: 'bought_not_started' },
-                  { session: '上半場', title: '掌握 AI 時代的應對之道', period: '2025/06/20 ~ 2025/06/29', vimeoUrl: 'https://player.vimeo.com/video/123456789', status: 'bought_open' },
-                  { session: '上半場', title: '九紫離火時代生存指南', period: '2025/07/18 ~ 2025/07/27', vimeoUrl: 'https://player.vimeo.com/video/123456789', status: 'bought_ended' },
-                  { session: '下半場', title: '超腦駭客翻轉衰老祕法', period: '2025/08/15 ~ 2025/08/24', vimeoUrl: 'https://player.vimeo.com/video/123456789', status: 'not_bought_can_buy' },
-                  { session: '下半場', title: '超秘術：生命區塊鏈', period: '2025/09/19 ~ 2025/09/28', vimeoUrl: 'https://player.vimeo.com/video/123456789', status: 'not_bought_expired' },
-                  { session: '下半場', title: '未來人類最強『空實力』', period: '2025/10/17 ~ 2025/10/26', vimeoUrl: 'https://player.vimeo.com/video/123456789', status: 'bought_open' },
-              ],
+              videoList: {{ video_list|tojson|safe }},
               vimeoModal: null,
               vimeoPlayer: null,
           };
@@ -228,15 +219,11 @@
           });
       },
       methods: {
-          // 狀態按鈕行為說明：
-          // openVimeo(url)：已購買且已開放回放時觸發，開啟 vimeo 播放
-          // goBuy(item)：未購買且可購買時觸發，導向購買頁（請根據實際購買頁連結修改）
           openVimeo(url) {
               this.vimeoPlayer.src = url + '?autoplay=1';
               this.vimeoModal.show();
           },
           goBuy(item) {
-              // TODO: 請將購買連結換成實際購買頁網址
               window.location.href = '/buy';
           }
       }
