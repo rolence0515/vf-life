@@ -48,17 +48,20 @@ CREATE TABLE user_videos (
 
 ## 3. videos 官方影片表
 
-| 欄位名稱     | 型別         | 說明                   |
-| ------------ | ------------ | ---------------------- |
-| id           | SERIAL       | 影片唯一ID             |
-| type         | VARCHAR(32)  | 影片來源(vimeo, yt等)  |
-| url          | TEXT         | 影片網址               |
-| title        | VARCHAR(255) | 標題                   |
-| description  | TEXT         | 說明                   |
-| created_at   | TIMESTAMP    | 建立日期               |
-| updated_at   | TIMESTAMP    | 修改日期               |
-| available_at | TIMESTAMP    | 上架日                 |
-| expired_at   | TIMESTAMP    | 下架日(過期不可觀看)   |
+| 欄位名稱       | 型別         | 說明                         |
+| -------------- | ------------ | ---------------------------- |
+| id             | SERIAL       | 影片唯一ID                   |
+| type           | VARCHAR(32)  | 影片來源(vimeo, yt等)        |
+| url            | TEXT         | 影片網址                     |
+| title          | VARCHAR(255) | 標題                         |
+| description    | TEXT         | 說明                         |
+| created_at     | TIMESTAMP    | 建立日期                     |
+| updated_at     | TIMESTAMP    | 修改日期                     |
+| available_at   | TIMESTAMP    | 上架日                       |
+| expired_at     | TIMESTAMP    | 下架日(過期不可觀看)         |
+| buy_url        | TEXT         | 購買連結                     |
+| buy_start_at   | TIMESTAMP    | 開放購買日                   |
+| buy_end_at     | TIMESTAMP    | 結束購買日                   |
 
 ```sql
 CREATE TABLE videos (
@@ -70,8 +73,9 @@ CREATE TABLE videos (
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, -- 建立日期
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, -- 修改日期
   available_at TIMESTAMP NOT NULL, -- 上架日
-  expired_at TIMESTAMP NOT NULL -- 下架日(過期不可觀看)
+  expired_at TIMESTAMP NOT NULL, -- 下架日(過期不可觀看)
+  buy_url TEXT, -- 購買連結
+  buy_start_at TIMESTAMP, -- 開放購買日
+  buy_end_at TIMESTAMP -- 結束購買日
 );
 ```
-
----

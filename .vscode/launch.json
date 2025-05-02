@@ -8,7 +8,12 @@
             "program": "${file}",
             "console": "integratedTerminal",
             "env": { 
-                "PIPENV_PYTHON": "3.11", 
+                "PIPENV_PYTHON": "3.11",
+                "DB_HOST": "34.96.232.148",
+                "DB_PASSWORD": "Test123456!",
+                "DB_PORT": "5432",
+                "DB_USER": "postgres",
+                "DB_NAME": "postgres"
             },
             "python": "/Users/rolence/.local/share/virtualenvs/vf-timeline-OJszKKn5/bin/python" // 指定新的 pipenv 虛擬環境 Python 路徑
         }

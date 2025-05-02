@@ -2,6 +2,9 @@ from flask import Flask, render_template, request, redirect, url_for, flash, ses
 import requests
 from functools import wraps
 import secrets
+import psycopg2
+from config import config
+import os
 
 app = Flask(__name__)
 app.secret_key = secrets.token_urlsafe(32)  # 使用隨機產生的安全密鑰
@@ -95,9 +98,52 @@ def logout():
     flash('您已成功登出', 'success')
     return redirect(url_for('login'))
 
+@app.route('/test-db')
+def test_db():
+    db_info = {
+        'DB_HOST': config.DB_HOST,
+        'DB_PORT': config.DB_PORT,
+        'DB_USER': getattr(config, 'DB_USER', 'postgres'),
+        'DB_NAME': getattr(config, 'DB_NAME', 'postgres'),
+        'DB_PASSWORD': getattr(config, 'DB_PASSWORD', '***隱藏***'),  # 顯示密碼（可改為***隱藏***）
+    }
+    result = None
+    error = None
+    try:
+        conn = psycopg2.connect(
+            host=config.DB_HOST,
+            port=config.DB_PORT,
+            user=getattr(config, 'DB_USER', 'postgres'),
+            password=config.DB_PASSWORD,
+            dbname=getattr(config, 'DB_NAME', 'postgres')
+        )
+        with conn.cursor() as cur:
+            cur.execute('SELECT 1')
+            result = cur.fetchone()
+        conn.close()
+    except Exception as e:
+        error = str(e)
+    return render_template(
+        'test_db.html',
+        db_info=db_info,
+        result=result,
+        error=error
+    )
+
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template('404.html'), 404
 
+@app.route('/debug-socket')
+def debug_socket():
+    try:
+        socket_files = os.listdir('/cloudsql')
+    except Exception as e:
+        socket_files = f'Error reading socket dir: {e}'
+    return {
+        "cloudsql_dir": socket_files,
+        "db_host_env": config.DB_HOST,
+    }
+    
 if __name__ == '__main__':
     app.run(debug=True, port=8080)

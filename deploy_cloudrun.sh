@@ -16,7 +16,7 @@ ENV_FILE_PREFIX=".env"
 PROJECT_ID="rolence-project"
 
 # Cloud Run 部署區域
-REGION="asia-northeast1"
+REGION="asia-east2"
 
 # VPC 連接器名稱 (可選，預設為空)
 VPC_CONNECTOR=""
@@ -25,12 +25,16 @@ VPC_CONNECTOR=""
 VPC_EGRESS=""
 
 # UAT 和 PROD 環境的服務名稱與最大實例數
-UAT_SERVICE_NAME="vf-timeline-uat"
+UAT_SERVICE_NAME="vf-life-uat"
 UAT_MAX_INSTANCES=4
-PROD_SERVICE_NAME="vf-timeline-prod"
+PROD_SERVICE_NAME="vf-life-prod"
 PROD_MAX_INSTANCES=10
 
 # ====================
+# Cloud SQL 實例連線名稱（方便未來修改）
+# ====================
+CLOUDSQL_INSTANCE="rolence-project:asia-east2:vf-life-uat-db"
+echo "🔍 CLOUDSQL_INSTANCE = $CLOUDSQL_INSTANCE"
 
 # 檢查是否提供了環境參數
 if [ -z "$1" ]; then
@@ -93,6 +97,7 @@ ENV_VARS=$(awk -F= '!/^\s*#/ && NF==2 {printf "%s=%s,", $1, $2}' "$ENV_FILE" | s
 
 DEPLOY_COMMAND="gcloud run deploy $SERVICE_NAME \
     --image=$IMAGE \
+    --add-cloudsql-instances=$CLOUDSQL_INSTANCE \
     --region=$REGION \
     --max-instances=$MAX_INSTANCES \
     --cpu=$CPU \

@@ -1,6 +1,9 @@
 # 使用 Python 3.11 作為基底映像
 FROM python:3.11
 
+# Cloud SQL socket 是被 mount 到 /cloudsql 路徑的，但這個資料夾要 你自己在 Dockerfile 裡建出來
+RUN mkdir -p /cloudsql
+
 # 安裝必要的工具
 RUN apt-get update && apt-get install -y \
     openvpn \

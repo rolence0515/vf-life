@@ -14,4 +14,15 @@ env_variables:
   WORKER_CLASS: gthread
   THREADS: 5
 
+  # 🔽 修改為新的測試資料庫連線資訊
+  DB_HOST: /cloudsql/rolence-project:asia-east2:vf-life-uat-db
+  DB_PORT: 5432
+  DB_USER: postgres
+  DB_NAME: postgres
+  DB_PASSWORD: "Test123456!"
+
 service: default
+
+# 🔽 對應新 Cloud SQL instance 的 socket 掛載設定
+beta_settings:
+  cloud_sql_instances: rolence-project:asia-east2:vf-life-uat-db
