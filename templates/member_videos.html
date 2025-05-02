@@ -54,10 +54,10 @@
                 <i class="ti ti-dots nav-small-cap-icon fs-6"></i>
                 <span class="hide-menu">首頁</span>
               </li>
-              <li class="sidebar-item" v-for="(series, idx) in seriesList" :key="idx">
-                <a class="sidebar-link" :class="{ active: activeSeriesId === series.id }" aria-expanded="false" @click="setActiveSeries(series.id, $event)">
+              <li v-for="(series, idx) in seriesList" :key="idx" :class="['sidebar-item', { active: String(activeSeriesId) === String(series.id) }]">
+                <a href="#" class="sidebar-link"  aria-expanded="false" @click.prevent="setActiveSeries(series.id)">
                   <span>
-                    <iconify-icon icon="solar:home-smile-bold-duotone" class="fs-6" :style="activeSeriesId === series.id ? 'color:#fff;background:#3a47fd;border-radius:8px;padding:2px;' : ''"></iconify-icon>
+                    <iconify-icon icon="solar:home-smile-bold-duotone" class="fs-6"></iconify-icon>
                   </span>
                   <span class="hide-menu">[[ series.name ]]</span>
                 </a>
@@ -229,7 +229,7 @@
           goBuy(item) {
               window.location.href = '/buy';
           },
-          setActiveSeries(id, event) {
+          setActiveSeries(id) {
               if (this.activeSeriesId === id) return;
               this.activeSeriesId = id;
               this.loading = true;
