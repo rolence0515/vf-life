@@ -824,7 +824,7 @@ Banner Style
 
 .main-banner {
   position: relative;
-  padding: 295px 0px 100px 0px;
+  padding: 295px 0px 0px 0px;
 }
 
 .main-banner:after {
@@ -1841,6 +1841,7 @@ body {
   }
   .main-banner {
     margin-top: 100px;
+    margin-bottom: 100px;
   }
   .header-area .main-nav .nav li:nth-child(4) {
     padding-right: 0px !important;
