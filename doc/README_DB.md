@@ -1,3 +1,18 @@
+# 初始密碼產生說明
+
+- 新增使用者時，初始密碼會以「Email 字串做 sha256 雜湊後，取前 6 碼」作為密碼。
+- 例如：email 為 rolence0515@gmail.com，則密碼為 sha256('rolence0515@gmail.com') 的前 6 碼。
+- 產生方式（Python 範例）：
+
+```python
+import hashlib
+email = 'rolence0515@gmail.com'
+password = hashlib.sha256(email.encode()).hexdigest()[:6]
+print(password)  # 例如: c7b6ac
+```
+
+---
+
 # 資料庫結構說明
 
 ## 1. user 使用者表
@@ -19,6 +34,8 @@ CREATE TABLE "user" (
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP -- 修改日期
 );
 ```
+
+
 
 ---
 
