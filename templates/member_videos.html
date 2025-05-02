@@ -54,20 +54,12 @@
                 <i class="ti ti-dots nav-small-cap-icon fs-6"></i>
                 <span class="hide-menu">首頁</span>
               </li>
-              <li class="sidebar-item">
-                <a class="sidebar-link" aria-expanded="false">
+              <li class="sidebar-item" v-for="(series, idx) in seriesList" :key="idx">
+                <a class="sidebar-link" :class="{ active: activeSeriesId === series.id }" aria-expanded="false" @click="setActiveSeries(series.id, $event)">
                   <span>
-                    <iconify-icon icon="solar:home-smile-bold-duotone" class="fs-6"></iconify-icon>
+                    <iconify-icon icon="solar:home-smile-bold-duotone" class="fs-6" :style="activeSeriesId === series.id ? 'color:#fff;background:#3a47fd;border-radius:8px;padding:2px;' : ''"></iconify-icon>
                   </span>
-                  <span class="hide-menu">上半場</span>
-                </a>
-              </li>
-              <li class="sidebar-item">
-                <a class="sidebar-link" aria-expanded="false">
-                  <span>
-                    <iconify-icon icon="solar:home-smile-bold-duotone" class="fs-6"></iconify-icon>
-                  </span>
-                  <span class="hide-menu">下半場</span>
+                  <span class="hide-menu">[[ series.name ]]</span>
                 </a>
               </li>
           </nav>
@@ -132,9 +124,13 @@
           </div>
           <div class="card">
             <div class="card-body">
-              <!-- 直播回放清單列表 Start -->
-              <h5 class="card-title fw-semibold mb-4">直播回放清單列表</h5>
-              <div class="table-responsive">
+              <!-- 直播回放列表 Start -->
+              <h5 class="card-title fw-semibold mb-4">直播回放列表</h5>
+              <div v-if="loading" class="text-center my-4">
+                <div class="spinner-border text-primary" role="status">
+                </div>
+              </div>
+              <div v-else class="table-responsive">
                 <table class="table text-nowrap align-middle mb-0">
                   <thead>
                     <tr class="border-2 border-bottom border-primary border-0">
@@ -165,7 +161,7 @@
                   </tbody>
                 </table>
               </div>
-              <!-- 直播回放清單列表 End -->
+              <!-- 直播回放列表 End -->
             </div>
           </div>
           <div class="py-6 px-6 text-center">
@@ -206,9 +202,12 @@
       delimiters: ['[[', ']]'],
       data() {
           return {
-              videoList: {{ video_list|tojson|safe }},
               vimeoModal: null,
               vimeoPlayer: null,
+              videoList: {{ video_list|tojson|safe }},
+              seriesList: {{ series_list|tojson|safe }},
+              activeSeriesId: {{ active_series_id }},
+              loading: false // 新增 loading 狀態
           };
       },
       mounted() {
@@ -217,6 +216,10 @@
           document.getElementById('vimeoModal').addEventListener('hidden.bs.modal', () => {
               this.vimeoPlayer.src = '';
           });
+          // 自動選第一個系列為 active
+          if (this.seriesList.length > 0) {
+              this.activeSeriesId = this.seriesList[0].id;
+          }
       },
       methods: {
           openVimeo(url) {
@@ -225,6 +228,28 @@
           },
           goBuy(item) {
               window.location.href = '/buy';
+          },
+          setActiveSeries(id, event) {
+              if (this.activeSeriesId === id) return;
+              this.activeSeriesId = id;
+              this.loading = true;
+              // AJAX 請求取得該系列下的影片
+              fetch('/api/videos_by_series', {
+                  method: 'POST',
+                  headers: {
+                      'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify({ series_id: id })
+              })
+              .then(res => res.json())
+              .then(data => {
+                  this.videoList = data.video_list;
+                  this.loading = false;
+              })
+              .catch(err => {
+                  this.loading = false;
+                  alert('取得影片清單失敗');
+              });
           }
       }
   });

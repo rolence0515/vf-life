@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, session, get_flashed_messages
+from flask import Flask, render_template, request, redirect, url_for, flash, session, get_flashed_messages, jsonify
 import requests
 from functools import wraps
 import secrets
@@ -32,9 +32,12 @@ def home():
 def member_videos():
     user_email = session.get('user_email')
     repo = VideoRepository()
-    video_list = repo.get_videos_with_status(user_email)
+    # 取得系列 id 與名稱
+    series_list = repo.get_all_series()
+    active_series_id = series_list[0]['id'] if series_list else None
+    video_list = repo.get_videos_with_status(user_email, active_series_id)
     repo.close()
-    return render_template('member_videos.html', video_list=video_list)
+    return render_template('member_videos.html', video_list=video_list, series_list=series_list, active_series_id=active_series_id)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -175,6 +178,16 @@ def debug_socket():
         "cloudsql_dir": socket_files,
         "db_host_env": config.DB_HOST,
     }
+
+@app.route('/api/videos_by_series', methods=['POST'])
+@login_required
+def api_videos_by_series():
+    user_email = session.get('user_email')
+    series_id = request.json.get('series_id')
+    repo = VideoRepository()
+    video_list = repo.get_videos_with_status(user_email, series_id)
+    repo.close()
+    return jsonify({'video_list': video_list})
     
 if __name__ == '__main__':
     app.run(debug=True, port=8080)

@@ -12,35 +12,35 @@ class VideoRepository:
             dbname=config.DB_NAME
         )
 
-    def get_videos_with_status(self, user_email):
+    def get_videos_with_status(self, user_email, series_id=None):
         with self.conn.cursor(cursor_factory=RealDictCursor) as cur:
             # 取得 user_id
             cur.execute('SELECT id FROM "user" WHERE email = %s', (user_email,))
             user = cur.fetchone()
             user_id = user['id'] if user else None
-            # 查詢所有影片
-            cur.execute('''
+            # 查詢所有影片，若有 series_id 則加上條件
+            sql = '''
                 SELECT v.id, s.name as series, v.title, v.available_at, v.expired_at, v.url, uv.id as owned
                 FROM videos v
                 JOIN series s ON v.series_id = s.id
                 LEFT JOIN user_videos uv ON uv.video_id = v.id AND uv.user_id = %s
-                ORDER BY v.available_at ASC
-            ''', (user_id,))
+            '''
+            params = [user_id]
+            if series_id:
+                sql += ' WHERE v.series_id = %s'
+                params.append(series_id)
+            sql += ' ORDER BY v.available_at ASC'
+            cur.execute(sql, tuple(params))
             videos = cur.fetchall()
             result = []
+            from datetime import date, datetime
+            now = date.today()
             for v in videos:
-                # 狀態判斷
-                today = cur.mogrify('CURRENT_DATE').decode()
-                # 這裡直接用 Python 判斷
-                from datetime import date
                 available = v['available_at']
                 expired = v['expired_at']
-                import datetime
-                now = datetime.datetime.now().date()
-                # 修正型別比較問題
-                if isinstance(available, datetime.datetime):
+                if isinstance(available, datetime):
                     available = available.date()
-                if isinstance(expired, datetime.datetime):
+                if isinstance(expired, datetime):
                     expired = expired.date()
                 if v['owned']:
                     if now < available:
@@ -64,6 +64,11 @@ class VideoRepository:
                     'status': status
                 })
             return result
+
+    def get_all_series(self):
+        with self.conn.cursor() as cur:
+            cur.execute('SELECT id, name FROM series ORDER BY id ASC')
+            return [{'id': row[0], 'name': row[1]} for row in cur.fetchall()]
 
     def close(self):
         self.conn.close()
