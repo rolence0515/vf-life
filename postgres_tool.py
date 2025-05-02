@@ -11,8 +11,8 @@ def run_sql(sql):
     db_host = config.DB_HOST
     db_port = config.DB_PORT or '5432'
     db_password = config.DB_PASSWORD
-    db_user = 'postgres'  # 可根據實際情況調整
-    db_name = 'postgres'  # 可根據實際情況調整
+    db_user = config.DB_USER
+    db_name = config.DB_NAME
 
     conn = None
     try:
