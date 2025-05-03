@@ -113,7 +113,7 @@ def change_password():
                 else:
                     new_hash = hashlib.sha256(new_password.encode()).hexdigest()
                     repo.update_password(user['id'], new_hash)
-                    flash('密碼修改成功', 'success')
+                    flash('密碼修改成功，請重新登入', 'success')
                     repo.close()
                     return redirect(url_for('login'))
             repo.close()
