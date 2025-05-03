@@ -160,7 +160,7 @@
           <div class="card">
             <div class="card-body">
               <!-- 直播回放列表 Start -->
-              <h5 class="card-title fw-semibold mb-4">直播回放列表</h5>
+              <h5 class="card-title fw-semibold mb-4">[[ activeSeriesName ]] - 回放列表</h5>
               <div v-if="loading" class="text-center my-4">
                 <div class="spinner-border text-primary" role="status">
                 </div>
@@ -241,8 +241,9 @@
               videoList: {{ video_list|tojson|safe }},
               seriesList: {{ series_list|tojson|safe }},
               activeSeriesId: {{ active_series_id }},
-              loading: false // 新增 loading 狀態
-          };
+              activeSeriesName: '', // 新增系列名稱
+              loading: false
+          }
       },
       mounted() {
           this.vimeoModal = new bootstrap.Modal(document.getElementById('vimeoModal'));
@@ -250,6 +251,8 @@
           document.getElementById('vimeoModal').addEventListener('hidden.bs.modal', () => {
               this.vimeoPlayer.src = '';
           });
+          // 初始化 activeSeriesName
+          this.setActiveSeriesNameById(this.activeSeriesId);
       },
       methods: {
           openVimeo(url) {
@@ -262,6 +265,7 @@
           setActiveSeries(id) {
               if (this.activeSeriesId === id) return;
               this.activeSeriesId = id;
+              this.setActiveSeriesNameById(id);
               this.loading = true;
               // AJAX 請求取得該系列下的影片
               fetch('/api/videos_by_series', {
@@ -280,6 +284,10 @@
                   this.loading = false;
                   alert('取得影片清單失敗');
               });
+          },
+          setActiveSeriesNameById(id) {
+              const found = this.seriesList.find(s => String(s.id) === String(id));
+              this.activeSeriesName = found ? found.name : '';
           }
       }
   });

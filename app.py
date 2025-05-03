@@ -78,7 +78,6 @@ def login():
                 session.permanent = True
             else:
                 session.permanent = False
-            flash('登入成功', 'success')
             repo.close()
             return redirect(url_for('member_videos'))
         else:
@@ -196,8 +195,7 @@ def reset_password(token):
 @app.route('/logout')
 def logout():
     session.clear()
-    flash('您已成功登出', 'success')
-    return redirect(url_for('login'))
+    return redirect(url_for('home'))
 
 @app.route('/test-db')
 def test_db():
