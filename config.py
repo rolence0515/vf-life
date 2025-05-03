@@ -4,7 +4,7 @@ from datetime import timedelta
 class Config:
     def __init__(self):
         self.APP_ENV = os.environ.get("APP_ENV", "uat").lower()
-        self.DB_HOST = os.environ.get('DB_HOST', '34.96.237.19')  # 預設為公開IP
+        self.DB_HOST = os.environ.get('DB_HOST', '34.96.232.148')  # 預設為公開IP
         self.DB_PASSWORD = os.environ.get('DB_PASSWORD', 'Test123456!')
         self.DB_PORT = os.environ.get('DB_PORT', '5432')
         self.DB_USER = os.environ.get('DB_USER', 'postgres')
