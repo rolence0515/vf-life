@@ -138,6 +138,9 @@
 		loop: true,
 		nav: true,
 		margin: 30,
+		autoplay: true, // 新增自動輪播
+		autoplayTimeout: 4000, // 每4秒切換
+		autoplayHoverPause: true, // 滑鼠移上暫停
 		responsive: {
 			0: { items: 1 },      // 手機
 			600: { items: 1 },    // 小平板
