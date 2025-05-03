@@ -4,10 +4,14 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>SeoDash Free Bootstrap Admin Template by Adminmart</title>
+  <title>直播回放後台</title>
   <link rel="shortcut icon" type="image/png" href="/static/assets/images/logos/seodashlogo.png" />
   <link rel="stylesheet" href="/static/assets/css/styles.min.css" />
   <style>
+    [v-cloak] {
+      display: none;
+    }
+
     @media (max-width: 576px) {
       .sticky-play-mobile {
         position: sticky;
@@ -60,7 +64,7 @@
 
 <body>
   <!--  Body Wrapper -->
-  <div id="app">
+  <div id="app" v-cloak>
     <div class="page-wrapper" id="main-wrapper" data-layout="vertical" data-navbarbg="skin6" data-sidebartype="full"
       data-sidebar-position="fixed" data-header-position="fixed">
       <!-- Sidebar Start -->
