@@ -17,11 +17,17 @@ class Config:
         self.WEBSITE_DOMAIN = os.environ.get('WEBSITE_DOMAIN', 'http://127.0.0.1:8080')
 
         # Mail configuration
-        self.MAIL_SERVER = 'smtp.gmail.com'
-        self.MAIL_PORT = 587
-        self.MAIL_USE_TLS = True
-        self.MAIL_USERNAME = os.getenv('MAIL_USERNAME', 'rolence0515@gmail.com')
-        self.MAIL_PASSWORD = os.getenv('MAIL_PASSWORD', 'lill pqik nebe zojc')
+        # self.MAIL_SERVER = 'smtp.gmail.com'
+        # self.MAIL_PORT = 587
+        # self.MAIL_USE_TLS = True
+        # self.MAIL_USERNAME = os.getenv('MAIL_USERNAME', 'rolence0515@gmail.com')
+        # self.MAIL_PASSWORD = os.getenv('MAIL_PASSWORD', 'lill pqik nebe zojc')
+
+        # Email configuration for password recovery
+        self.EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.gmail.com')
+        self.EMAIL_PORT = int(os.environ.get('EMAIL_PORT', 465))
+        self.EMAIL_USER = os.environ.get('EMAIL_USER', 'rolence0515@gmail.com')
+        self.EMAIL_PASSWORD = os.environ.get('EMAIL_PASSWORD', 'lill pqik nebe zojc')
 
 # Create a single instance of Config
 config = Config()

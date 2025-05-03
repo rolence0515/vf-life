@@ -9,6 +9,9 @@ from datetime import timedelta
 from lib.user_repository import UserRepository
 from lib.video_repository import VideoRepository
 import hashlib
+from itsdangerous import URLSafeTimedSerializer
+import smtplib
+from email.mime.text import MIMEText
 
 app = Flask(__name__)
 app.secret_key = secrets.token_urlsafe(32)  # 使用隨機產生的安全密鑰
@@ -117,14 +120,78 @@ def change_password():
             repo.close()
     return render_template('change_password.html')
 
+def generate_reset_token(email, expires_sec=3600):
+    s = URLSafeTimedSerializer(app.secret_key)
+    return s.dumps(email, salt='reset-password')
+
+def verify_reset_token(token, expires_sec=3600):
+    s = URLSafeTimedSerializer(app.secret_key)
+    try:
+        email = s.loads(token, salt='reset-password', max_age=expires_sec)
+    except Exception:
+        return None
+    return email
+
+def send_reset_email(to_email, token):
+    reset_link = url_for('reset_password', token=token, _external=True)
+    subject = '密碼重設連結'
+    body = f'請點擊以下連結重設密碼：{reset_link}\n\n如果您沒有申請重設密碼，請忽略此信。'
+    msg = MIMEText(body, 'plain', 'utf-8')
+    msg['Subject'] = subject
+    msg['From'] = getattr(config, 'EMAIL_USER', 'noreply@example.com')
+    msg['To'] = to_email
+    try:
+        with smtplib.SMTP_SSL(getattr(config, 'EMAIL_HOST', 'smtp.gmail.com'), getattr(config, 'EMAIL_PORT', 465)) as server:
+            server.login(getattr(config, 'EMAIL_USER', ''), getattr(config, 'EMAIL_PASSWORD', ''))
+            server.sendmail(msg['From'], [to_email], msg.as_string())
+        return True
+    except Exception as e:
+        app.logger.error(f"Error sending reset email: {e}")
+        return False
+
 @app.route('/forgot-password', methods=['GET', 'POST'])
 def forgot_password():
     if request.method == 'POST':
         email = request.form.get('email')
-        # 這裡應加入發送重設密碼信件的邏輯
-        flash('重設密碼信已寄出，請檢查您的信箱', 'info')
-        return redirect(url_for('login'))
+        repo = UserRepository()
+        user = repo.get_user_by_email(email)
+        repo.close()
+        if not user:
+            flash('該 Email 並未註冊，請確認後再試', 'danger')
+            return redirect(url_for('forgot_password'))
+        token = generate_reset_token(email)
+        if send_reset_email(email, token):
+            flash('重設密碼信已寄出，請檢查您的信箱', 'info')
+            return redirect(url_for('login'))
+        else:
+            flash('發送重設連結時發生錯誤，請稍後再試', 'danger')
+            return redirect(url_for('forgot_password'))
     return render_template('forgot_password.html')
+
+@app.route('/reset-password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    email = verify_reset_token(token)
+    if not email:
+        flash('連結已失效或無效，請重新申請', 'danger')
+        return redirect(url_for('forgot_password'))
+    if request.method == 'POST':
+        new_password = request.form.get('new_password')
+        confirm_password = request.form.get('confirm_password')
+        if new_password != confirm_password:
+            flash('新密碼與確認密碼不一致', 'danger')
+        else:
+            repo = UserRepository()
+            user = repo.get_user_by_email(email)
+            if not user:
+                flash('找不到使用者', 'danger')
+                repo.close()
+                return redirect(url_for('forgot_password'))
+            new_hash = hashlib.sha256(new_password.encode()).hexdigest()
+            repo.update_password(user['id'], new_hash)
+            repo.close()
+            flash('密碼已重設，請重新登入', 'success')
+            return redirect(url_for('login'))
+    return render_template('reset_password.html', token=token)
 
 @app.route('/logout')
 def logout():

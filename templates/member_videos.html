@@ -87,7 +87,7 @@
             <ul id="sidebarnav">
               <li class="nav-small-cap">
                 <i class="ti ti-dots nav-small-cap-icon fs-6"></i>
-                <span class="hide-menu">首頁</span>
+                <span class="hide-menu">系列講座</span>
               </li>
               <li v-for="(series, idx) in seriesList" :key="idx" :class="['sidebar-item', { active: String(activeSeriesId) === String(series.id) }]">
                 <a href="#" class="sidebar-link" aria-expanded="false" @click.prevent="setActiveSeries(series.id)">
