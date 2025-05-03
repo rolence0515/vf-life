@@ -253,6 +253,11 @@ def api_videos_by_series():
     video_list = repo.get_videos_with_status(user_email, series_id)
     repo.close()
     return jsonify({'video_list': video_list})
+
+@app.route('/member_sample')
+def member_sample():
+    # 這個 sample 頁面不需要登入，也不需要資料庫，直接渲染假資料
+    return render_template('member_sample.html')
     
 if __name__ == '__main__':
     app.run(debug=True, port=8080)
