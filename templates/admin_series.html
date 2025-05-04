@@ -1,49 +1,116 @@
 {% extends "admin_base.html" %}
 
 {% block content %}
-<div class="container-fluid">
-  <div class="card">
-    <div class="card-body">
-      <h4 class="mb-2">影片系列表 (series)</h4>
-      <table class="table table-hover">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>名稱</th>
-            <th>說明</th>
-            <th>建立日期</th>
-            <th>修改日期</th>
-            <th>操作</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="series in pageData.seriesList" :key="series.id">
-            <td>[[ series.id ]]</td>
-            <td>[[ series.name ]]</td>
-            <td>[[ series.description ]]</td>
-            <td>[[ series.created_at ]]</td>
-            <td>[[ series.updated_at ]]</td>
-            <td>
-              <button class="btn btn-sm btn-primary">編輯</button>
-              <button class="btn btn-sm btn-danger">刪除</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+<div class="container-fluid" id="app">
+  <div class="row">
+    <!-- Removed the right-side form and its container to free up space -->
+    <div class="col-lg-12">
+      <div class="card">
+        <div class="card-header">
+          <h4 class="mb-2">影片系列 (Serail)</h4>
+        </div>
+        <div class="card-body">
+          <div class="d-flex justify-content-between mb-3">
+            <button class="btn btn-success" @click="resetForm" data-bs-toggle="modal" data-bs-target="#seriesModal">
+              新增系列
+            </button>
+          </div>
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>名稱</th>
+                <th>描述</th>
+                <th>建立日期</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="series in seriesList" :key="series.id">
+                <td>[[ series.id ]]</td>
+                <td>[[ series.name ]]</td>
+                <td>[[ series.description ]]</td>
+                <td>[[ series.created_at ]]</td>
+                <td>
+                  <button class="btn btn-sm btn-primary" @click="editItem(series)" data-bs-toggle="modal" data-bs-target="#seriesModal">編輯</button>
+                  <button class="btn btn-sm btn-danger" @click="deleteItem(series.id)">刪除</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   </div>
+
   <div class="py-6 px-6 text-center">
     <p class="mb-0 fs-5">© 2025 雙生紫焰 管理員後台｜僅供網站管理員使用</p>
   </div>
 </div>
+
+<div class="modal fade" id="seriesModal" tabindex="-1" aria-labelledby="seriesModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="seriesModalLabel">[[ formTitle ]]</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form @submit.prevent="submitForm">
+            <div class="mb-3">
+              <label for="name" class="form-label">名稱</label>
+              <input type="text" class="form-control" id="name" v-model="formData.name" required>
+            </div>
+            <div class="mb-3">
+              <label for="description" class="form-label">描述</label>
+              <textarea class="form-control" id="description" v-model="formData.description" required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">儲存</button>
+            <button type="button" class="btn btn-secondary" @click="resetForm" data-bs-dismiss="modal">取消</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block vue_scripts %}
 <script>
-  function extendVue(app) {
-    app.pageData = {
+  new Vue({
+    el: '#app',
+    delimiters: ['[[', ']]'],
+    data: {
       seriesList: [
-        { id: 1, name: '系列A', description: '描述A', created_at: '2025-01-01', updated_at: '2025-01-02' },
-        { id: 2, name: '系列B', description: '描述B', created_at: '2025-02-01', updated_at: '2025-02-02' }
-      ]
-    };
-  }
+        { id: 1, name: '系列1', description: '描述1', created_at: '2025-01-01' },
+        { id: 2, name: '系列2', description: '描述2', created_at: '2025-02-01' },
+        { id: 3, name: '系列3', description: '描述3', created_at: '2025-03-01' }
+      ],
+      formData: {},
+      formTitle: ''
+    },
+    methods: {
+      editItem(series) {
+        this.formData = { ...series };
+        this.formTitle = '編輯系列';
+      },
+      deleteItem(id) {
+        this.seriesList = this.seriesList.filter(series => series.id !== id);
+      },
+      submitForm() {
+        if (this.formData.id) {
+          const index = this.seriesList.findIndex(series => series.id === this.formData.id);
+          if (index !== -1) this.seriesList.splice(index, 1, this.formData);
+        } else {
+          this.formData.id = Date.now();
+          this.seriesList.push(this.formData);
+        }
+        this.resetForm();
+      },
+      resetForm() {
+        this.formData = {};
+        this.formTitle = '新增系列';
+      }
+    }
+  });
 </script>
 {% endblock %}

@@ -27,6 +27,7 @@
   </style>
 </head>
 <body>
+
   <div id="app" v-cloak>
     <div class="page-wrapper" id="main-wrapper" data-layout="vertical" data-navbarbg="skin6" data-sidebartype="full" data-sidebar-position="fixed" data-header-position="fixed">
       <!-- Sidebar Start -->
@@ -51,27 +52,27 @@
               </li>
               <li class="sidebar-item">
                 <a href="{{ url_for('admin.admin_user') }}" class="sidebar-link">
-                  <span>使用者表 (user)</span>
+                  <span>會員</span>
                 </a>
               </li>
               <li class="sidebar-item">
                 <a href="{{ url_for('admin.admin_user_videos') }}" class="sidebar-link">
-                  <span>使用者可觀看影片表 (user_videos)</span>
+                  <span>使用者影片</span>
                 </a>
               </li>
               <li class="sidebar-item">
                 <a href="{{ url_for('admin.admin_series') }}" class="sidebar-link">
-                  <span>影片系列表 (series)</span>
+                  <span>影片系列</span>
                 </a>
               </li>
               <li class="sidebar-item">
                 <a href="{{ url_for('admin.admin_videos') }}" class="sidebar-link">
-                  <span>官方影片表 (videos)</span>
+                  <span>影片</span>
                 </a>
               </li>
               <li class="sidebar-item">
                 <a href="{{ url_for('admin.admin_admin_users') }}" class="sidebar-link">
-                  <span>管理員會員關聯表 (admin_users)</span>
+                  <span>管理員使用者</span>
                 </a>
               </li>
             </ul>
@@ -116,7 +117,6 @@
         </header>
         <!-- Header End -->
         {% block content %}
-        <p>測試 URL: {{ url_for('admin.admin_series') }}</p>
         {% endblock %}
       </div>
     </div>
@@ -128,40 +128,6 @@
   <script src="/static/assets/js/app.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.min.js"></script>
-  <script>
-    let app = new Vue({
-      el: '#app',
-      delimiters: ['[[', ']]'],
-      data() {
-        return {
-          seriesList: [
-            { id: 1, name: '系列A' },
-            { id: 2, name: '系列B' },
-            { id: 3, name: '系列C' }
-          ],
-          activeSeriesId: 1,
-          sampleList: [
-            { id: 1, title: '假資料1', desc: '這是第一筆假資料' },
-            { id: 2, title: '假資料2', desc: '這是第二筆假資料' },
-            { id: 3, title: '假資料3', desc: '這是第三筆假資料' }
-          ],
-          pageData: {} // 預設為空對象，避免未定義錯誤
-        }
-      },
-      methods: {
-        setActiveSeries(id) {
-          this.activeSeriesId = id;
-        }
-      },
-      created() {
-        if (typeof extendVue === 'function') {
-          extendVue(this);
-          console.log('extendVue executed successfully'); // 調試用
-        } else {
-          console.warn('extendVue is not defined');
-        }
-      }
-    });
-  </script>
+  {% block vue_scripts %}{% endblock %}
 </body>
 </html>

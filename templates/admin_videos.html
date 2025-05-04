@@ -1,10 +1,17 @@
 {% extends "admin_base.html" %}
 
 {% block content %}
-<div class="container-fluid">
+<div class="container-fluid" id="app">
   <div class="card">
+    <div class="card-header">
+      <h4 class="mb-2">影片 (videos)</h4>
+    </div>
     <div class="card-body">
-      <h4 class="mb-2">官方影片表 (videos)</h4>
+      <div class="d-flex justify-content-between mb-3">
+        <button class="btn btn-success" @click="resetForm" data-bs-toggle="modal" data-bs-target="#videoModal">
+          新增影片
+        </button>
+      </div>
       <table class="table table-hover">
         <thead>
           <tr>
@@ -17,15 +24,15 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="video in pageData.videosList" :key="video.id">
+          <tr v-for="video in videosList" :key="video.id">
             <td>[[ video.id ]]</td>
             <td>[[ video.title ]]</td>
             <td>[[ video.series_id ]]</td>
             <td>[[ video.type ]]</td>
             <td>[[ video.created_at ]]</td>
             <td>
-              <button class="btn btn-sm btn-primary">編輯</button>
-              <button class="btn btn-sm btn-danger">刪除</button>
+              <button class="btn btn-sm btn-primary" @click="editItem(video)" data-bs-toggle="modal" data-bs-target="#videoModal">編輯</button>
+              <button class="btn btn-sm btn-danger" @click="deleteItem(video.id)">刪除</button>
             </td>
           </tr>
         </tbody>
@@ -36,14 +43,79 @@
     <p class="mb-0 fs-5">© 2025 雙生紫焰 管理員後台｜僅供網站管理員使用</p>
   </div>
 </div>
+
+<div class="modal fade" id="videoModal" tabindex="-1" aria-labelledby="videoModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="videoModalLabel">新增影片</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form @submit.prevent="submitForm">
+          <div class="mb-3">
+            <label class="form-label">標題</label>
+            <input type="text" class="form-control" v-model="formData.title" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">系列ID</label>
+            <input type="text" class="form-control" v-model="formData.series_id" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">來源</label>
+            <select class="form-select" v-model="formData.type" required>
+              <option value="">選擇來源</option>
+              <option value="vimeo">Vimeo</option>
+              <option value="youtube">YouTube</option>
+            </select>
+          </div>
+          <button type="submit" class="btn btn-primary">儲存</button>
+          <button type="button" class="btn btn-secondary" @click="resetForm" data-bs-dismiss="modal">取消</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block vue_scripts %}
 <script>
-  function extendVue(app) {
-    app.pageData = {
+  new Vue({
+    el: '#app',
+    delimiters: ['[[', ']]'],
+    data: {
       videosList: [
-        { id: 1, title: '影片A', series_id: 1, type: 'vimeo', created_at: '2025-01-01' },
-        { id: 2, title: '影片B', series_id: 2, type: 'youtube', created_at: '2025-02-01' }
-      ]
-    };
-  }
+        { id: 1, title: '影片1', series_id: '101', type: 'youtube', created_at: '2025-01-01' },
+        { id: 2, title: '影片2', series_id: '102', type: 'vimeo', created_at: '2025-02-01' },
+        { id: 3, title: '影片3', series_id: '103', type: 'youtube', created_at: '2025-03-01' }
+      ],
+      formData: {},
+      formTitle: ''
+    },
+    methods: {
+      editItem(video) {
+        this.formData = { ...video };
+        this.formTitle = '編輯影片';
+      },
+      deleteItem(id) {
+        this.videosList = this.videosList.filter(video => video.id !== id);
+      },
+      submitForm() {
+        if (this.formData.id) {
+          const index = this.videosList.findIndex(video => video.id === this.formData.id);
+          if (index !== -1) this.videosList.splice(index, 1, this.formData);
+        } else {
+          this.formData.id = Date.now();
+          this.videosList.push(this.formData);
+        }
+        this.resetForm();
+      },
+      resetForm() {
+        this.formData = {};
+        this.formTitle = '新增影片';
+      }
+    }
+  });
 </script>
 {% endblock %}

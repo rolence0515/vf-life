@@ -1,10 +1,17 @@
 {% extends "admin_base.html" %}
 
 {% block content %}
-<div class="container-fluid">
+<div class="container-fluid" id="app">
   <div class="card">
+    <div class="card-header">
+      <h4 class="mb-2">會員 (User)</h4>
+    </div>
     <div class="card-body">
-      <h4 class="mb-2">使用者表 (user)</h4>
+      <div class="d-flex justify-content-between mb-3">
+        <button class="btn btn-success" @click="resetForm" data-bs-toggle="modal" data-bs-target="#userModal">
+          新增使用者
+        </button>
+      </div>
       <table class="table table-hover">
         <thead>
           <tr>
@@ -16,29 +23,93 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="user in pageData.userList" :key="user.id">
+          <tr v-for="user in userList" :key="user.id">
             <td>[[ user.id ]]</td>
             <td>[[ user.email ]]</td>
             <td>[[ user.created_at ]]</td>
             <td>[[ user.updated_at ]]</td>
             <td>
-              <button class="btn btn-sm btn-primary">編輯</button>
-              <button class="btn btn-sm btn-danger">刪除</button>
+              <button class="btn btn-sm btn-primary" @click="editItem(user)" data-bs-toggle="modal" data-bs-target="#userModal">編輯</button>
+              <button class="btn btn-sm btn-danger" @click="deleteItem(user.id)">刪除</button>
             </td>
           </tr>
         </tbody>
       </table>
+
+      <div class="modal fade" id="userModal" tabindex="-1" aria-labelledby="userModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="userModalLabel">[[ formTitle ]]</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <form @submit.prevent="submitForm">
+                <div class="mb-3">
+                  <label for="email" class="form-label">Email</label>
+                  <input type="email" class="form-control" id="email" v-model="formData.email" required>
+                </div>
+                <div class="mb-3">
+                  <label for="created_at" class="form-label">建立日期</label>
+                  <input type="date" class="form-control" id="created_at" v-model="formData.created_at" required>
+                </div>
+                <div class="mb-3">
+                  <label for="updated_at" class="form-label">修改日期</label>
+                  <input type="date" class="form-control" id="updated_at" v-model="formData.updated_at" required>
+                </div>
+                <button type="submit" class="btn btn-primary">儲存</button>
+                <button type="button" class="btn btn-secondary" @click="resetForm" data-bs-dismiss="modal">取消</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
+
+  <div class="py-6 px-6 text-center">
+    <p class="mb-0 fs-5">© 2025 雙生紫焰 管理員後台｜僅供網站管理員使用</p>
+  </div>
 </div>
+{% endblock %}
+
+{% block vue_scripts %}
 <script>
-  function extendVue(app) {
-    app.pageData = {
+  new Vue({
+    el: '#app',
+    delimiters: ['[[', ']]'],
+    data: {
       userList: [
         { id: 1, email: 'user1@example.com', created_at: '2025-01-01', updated_at: '2025-01-02' },
-        { id: 2, email: 'user2@example.com', created_at: '2025-02-01', updated_at: '2025-02-02' }
-      ]
-    };
-  }
+        { id: 2, email: 'user2@example.com', created_at: '2025-02-01', updated_at: '2025-02-02' },
+        { id: 3, email: 'user3@example.com', created_at: '2025-03-01', updated_at: '2025-03-02' }
+      ],
+      formData: {},
+      formTitle: ''
+    },
+    methods: {
+      editItem(user) {
+        this.formData = { ...user };
+        this.formTitle = '編輯使用者';
+      },
+      deleteItem(id) {
+        this.userList = this.userList.filter(user => user.id !== id);
+      },
+      submitForm() {
+        if (this.formData.id) {
+          const index = this.userList.findIndex(user => user.id === this.formData.id);
+          if (index !== -1) this.userList.splice(index, 1, this.formData);
+        } else {
+          this.formData.id = Date.now();
+          this.userList.push(this.formData);
+        }
+        this.resetForm();
+      },
+      resetForm() {
+        this.formData = {};
+        this.formTitle = '新增使用者';
+      }
+    }
+  });
 </script>
 {% endblock %}

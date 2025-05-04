@@ -1,10 +1,18 @@
 {% extends "admin_base.html" %}
 
 {% block content %}
-<div class="container-fluid">
+<div class="container-fluid" id="app">
   <div class="card">
+    <div class="card-header">
+      <h4 class="mb-2">管理員使用者 (admin_users)</h4>
+    </div>
     <div class="card-body">
-      <h4 class="mb-2">管理員會員關聯表 (admin_users)</h4>
+      <div class="d-flex justify-content-between mb-3">
+        <button class="btn btn-success" @click="resetForm" data-bs-toggle="modal" data-bs-target="#adminModal">
+          新增管理員
+        </button>
+      </div>
+
       <table class="table table-hover">
         <thead>
           <tr>
@@ -16,29 +24,85 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="admin in pageData.adminUsersList" :key="admin.id">
+          <tr v-for="admin in adminUsersList" :key="admin.id">
             <td>[[ admin.id ]]</td>
             <td>[[ admin.user_id ]]</td>
             <td>[[ admin.created_at ]]</td>
             <td>[[ admin.updated_at ]]</td>
             <td>
-              <button class="btn btn-sm btn-primary">編輯</button>
-              <button class="btn btn-sm btn-danger">刪除</button>
+              <button class="btn btn-sm btn-primary" @click="editItem(admin)" data-bs-toggle="modal" data-bs-target="#adminModal">編輯</button>
+              <button class="btn btn-sm btn-danger" @click="deleteItem(admin.id)">刪除</button>
             </td>
           </tr>
         </tbody>
       </table>
+
+      <div class="modal fade" id="adminModal" tabindex="-1" aria-labelledby="adminModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="adminModalLabel">[[ formTitle ]]</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <form @submit.prevent="submitForm">
+                <div class="mb-3">
+                  <label for="user_id" class="form-label">使用者ID</label>
+                  <input type="text" class="form-control" id="user_id" v-model="formData.user_id" required>
+                </div>
+                <button type="submit" class="btn btn-primary">儲存</button>
+                <button type="button" class="btn btn-secondary" @click="resetForm" data-bs-dismiss="modal">取消</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
+
+  <div class="py-6 px-6 text-center">
+    <p class="mb-0 fs-5">© 2025 雙生紫焰 管理員後台｜僅供網站管理員使用</p>
+  </div>
 </div>
+{% endblock %}
+
+{% block vue_scripts %}
 <script>
-  function extendVue(app) {
-    app.pageData = {
+  new Vue({
+    el: '#app',
+    delimiters: ['[[', ']]'],
+    data: {
       adminUsersList: [
-        { id: 1, user_id: 1, created_at: '2025-01-01', updated_at: '2025-01-02' },
-        { id: 2, user_id: 2, created_at: '2025-02-01', updated_at: '2025-02-02' }
-      ]
-    };
-  }
+        { id: 1, user_id: 101, created_at: '2025-01-01', updated_at: '2025-01-02' },
+        { id: 2, user_id: 102, created_at: '2025-02-01', updated_at: '2025-02-02' },
+        { id: 3, user_id: 103, created_at: '2025-03-01', updated_at: '2025-03-02' }
+      ],
+      formData: {},
+      formTitle: ''
+    },
+    methods: {
+      editItem(admin) {
+        this.formData = { ...admin };
+        this.formTitle = '編輯管理員';
+      },
+      deleteItem(id) {
+        this.adminUsersList = this.adminUsersList.filter(admin => admin.id !== id);
+      },
+      submitForm() {
+        if (this.formData.id) {
+          const index = this.adminUsersList.findIndex(admin => admin.id === this.formData.id);
+          if (index !== -1) this.adminUsersList.splice(index, 1, this.formData);
+        } else {
+          this.formData.id = Date.now();
+          this.adminUsersList.push(this.formData);
+        }
+        this.resetForm();
+      },
+      resetForm() {
+        this.formData = {};
+        this.formTitle = '新增管理員';
+      }
+    }
+  });
 </script>
 {% endblock %}
