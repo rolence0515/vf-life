@@ -4,19 +4,46 @@
 <div class="container-fluid">
   <div class="card">
     <div class="card-body">
-      <div class="row align-items-center g-2">
-        <div class="col-3 col-md-2 text-center">
-          <img src="/static/assets/images/backgrounds/product-tip.png" alt="image" class="img-fluid" style="max-width:80px;" />
-        </div>
-        <div class="col-9 col-md-10">
-          <h4 class="mb-2">官方影片表 (videos)</h4>
-          <p class="mb-0">這裡是官方影片表的內容。</p>
-        </div>
-      </div>
+      <h4 class="mb-2">官方影片表 (videos)</h4>
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>標題</th>
+            <th>系列ID</th>
+            <th>來源</th>
+            <th>建立日期</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="video in pageData.videosList" :key="video.id">
+            <td>[[ video.id ]]</td>
+            <td>[[ video.title ]]</td>
+            <td>[[ video.series_id ]]</td>
+            <td>[[ video.type ]]</td>
+            <td>[[ video.created_at ]]</td>
+            <td>
+              <button class="btn btn-sm btn-primary">編輯</button>
+              <button class="btn btn-sm btn-danger">刪除</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
   <div class="py-6 px-6 text-center">
     <p class="mb-0 fs-5">© 2025 雙生紫焰 管理員後台｜僅供網站管理員使用</p>
   </div>
 </div>
+<script>
+  function extendVue(app) {
+    app.pageData = {
+      videosList: [
+        { id: 1, title: '影片A', series_id: 1, type: 'vimeo', created_at: '2025-01-01' },
+        { id: 2, title: '影片B', series_id: 2, type: 'youtube', created_at: '2025-02-01' }
+      ]
+    };
+  }
+</script>
 {% endblock %}

@@ -4,19 +4,46 @@
 <div class="container-fluid">
   <div class="card">
     <div class="card-body">
-      <div class="row align-items-center g-2">
-        <div class="col-3 col-md-2 text-center">
-          <img src="/static/assets/images/backgrounds/product-tip.png" alt="image" class="img-fluid" style="max-width:80px;" />
-        </div>
-        <div class="col-9 col-md-10">
-          <h4 class="mb-2">使用者可觀看影片表 (user_videos)</h4>
-          <p class="mb-0">這裡是使用者可觀看影片表的內容。</p>
-        </div>
-      </div>
+      <h4 class="mb-2">使用者可觀看影片表 (user_videos)</h4>
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>使用者ID</th>
+            <th>影片ID</th>
+            <th>建立日期</th>
+            <th>修改日期</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="video in pageData.userVideosList" :key="video.id">
+            <td>[[ video.id ]]</td>
+            <td>[[ video.user_id ]]</td>
+            <td>[[ video.video_id ]]</td>
+            <td>[[ video.created_at ]]</td>
+            <td>[[ video.updated_at ]]</td>
+            <td>
+              <button class="btn btn-sm btn-primary">編輯</button>
+              <button class="btn btn-sm btn-danger">刪除</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
   <div class="py-6 px-6 text-center">
     <p class="mb-0 fs-5">© 2025 雙生紫焰 管理員後台｜僅供網站管理員使用</p>
   </div>
 </div>
+<script>
+  function extendVue(app) {
+    app.pageData = {
+      userVideosList: [
+        { id: 1, user_id: 1, video_id: 101, created_at: '2025-01-01', updated_at: '2025-01-02' },
+        { id: 2, user_id: 2, video_id: 102, created_at: '2025-02-01', updated_at: '2025-02-02' }
+      ]
+    };
+  }
+</script>
 {% endblock %}

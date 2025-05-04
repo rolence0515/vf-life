@@ -144,12 +144,21 @@
             { id: 1, title: '假資料1', desc: '這是第一筆假資料' },
             { id: 2, title: '假資料2', desc: '這是第二筆假資料' },
             { id: 3, title: '假資料3', desc: '這是第三筆假資料' }
-          ]
+          ],
+          pageData: {} // 預設為空對象，避免未定義錯誤
         }
       },
       methods: {
         setActiveSeries(id) {
           this.activeSeriesId = id;
+        }
+      },
+      created() {
+        if (typeof extendVue === 'function') {
+          extendVue(this);
+          console.log('extendVue executed successfully'); // 調試用
+        } else {
+          console.warn('extendVue is not defined');
         }
       }
     });
