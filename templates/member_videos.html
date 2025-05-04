@@ -198,8 +198,8 @@
                           @click="openVimeo(item.vimeoUrl)">觀看回放</button>
                         <button v-else-if="item.status === 'bought_ended'" class="btn btn-sm btn-outline-secondary" disabled>回放已結束
                         </button>
-                        <button v-else-if="item.status === 'not_bought_can_buy'" class="btn btn-sm btn-success"
-                          @click="goBuy(item)">立即購買</button>
+                        <a v-else-if="item.status === 'not_bought_can_buy' && item.buy_url" :href="item.buy_url" target="_blank" class="btn btn-sm btn-success">立即購買</a>
+                        <button v-else-if="item.status === 'not_bought_can_buy'" class="btn btn-sm btn-success" @click="goBuy(item)">立即購買</button>
                         <button v-else-if="item.status === 'not_bought_expired'" class="btn btn-sm btn-outline-dark"
                           disabled>不可購買(已過期限)</button>
                       </td>

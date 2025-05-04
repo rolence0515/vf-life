@@ -20,7 +20,7 @@ class VideoRepository:
             user_id = user['id'] if user else None
             # 查詢所有影片，若有 series_id 則加上條件
             sql = '''
-                SELECT v.id, s.name as series, v.title, v.available_at, v.expired_at, v.url, uv.id as owned
+                SELECT v.id, s.name as series, v.title, v.available_at, v.expired_at, v.url, v.buy_url, uv.id as owned
                 FROM videos v
                 JOIN series s ON v.series_id = s.id
                 LEFT JOIN user_videos uv ON uv.video_id = v.id AND uv.user_id = %s
@@ -61,7 +61,8 @@ class VideoRepository:
                     'title': v['title'],
                     'period': f"{v['available_at'].strftime('%Y/%m/%d')} ~ {v['expired_at'].strftime('%Y/%m/%d')}",
                     'vimeoUrl': v['url'] or 'https://player.vimeo.com/video/123456789',
-                    'status': status
+                    'status': status,
+                    'buy_url': v.get('buy_url')
                 })
             return result
 
