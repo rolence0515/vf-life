@@ -651,9 +651,11 @@ Header Style
     position: absolute;
     left: 30px;
     top: 0px;
+    margin-top: 25px;
   }
   .background-header .main-nav .logo {
     top: 0px;
+    margin-top: 0;
   }
   .background-header .main-nav .border-button {
     top: 0px !important;
