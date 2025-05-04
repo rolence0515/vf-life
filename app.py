@@ -12,19 +12,13 @@ import hashlib
 from itsdangerous import URLSafeTimedSerializer
 import smtplib
 from email.mime.text import MIMEText
+from admin_blueprint import admin_bp
+from lib.login_required import login_required
 
 app = Flask(__name__)
 app.secret_key = secrets.token_urlsafe(32)  # 使用隨機產生的安全密鑰
 app.permanent_session_lifetime = timedelta(days=30)  # 設定 session 有效期 30 天
-
-def login_required(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if not session.get('logged_in'):
-            flash('請先登入', 'warning')
-            return redirect(url_for('login'))
-        return f(*args, **kwargs)
-    return decorated_function
+app.register_blueprint(admin_bp)
 
 @app.route('/')
 def home():
@@ -74,6 +68,7 @@ def login():
         if user and user['password'] == hashlib.sha256(password.encode()).hexdigest():
             session['logged_in'] = True
             session['user_email'] = user['email']
+            session['user_id'] = user['id']  # 新增 user_id 進 session
             if request.form.get('remember_me'):
                 session.permanent = True
             else:

@@ -121,3 +121,24 @@ CREATE TABLE videos (
   FOREIGN KEY (series_id) REFERENCES series(id)
 );
 ```
+
+---
+
+## 5. admin_users 管理員會員關聯表
+
+| 欄位名稱   | 型別    | 說明               |
+| ---------- | ------- | ------------------ |
+| id         | SERIAL  | 唯一ID             |
+| user_id    | INTEGER | 使用者ID (唯一)    |
+| created_at | TIMESTAMP | 建立日期         |
+| updated_at | TIMESTAMP | 修改日期         |
+
+```sql
+CREATE TABLE admin_users (
+  id SERIAL PRIMARY KEY, -- 唯一ID
+  user_id INTEGER UNIQUE NOT NULL, -- 使用者ID (唯一，1位會員只能有1筆管理員關聯)
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, -- 建立日期
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, -- 修改日期
+  FOREIGN KEY (user_id) REFERENCES "user"(id)
+);
+```

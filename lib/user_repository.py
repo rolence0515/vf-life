@@ -23,5 +23,10 @@ class UserRepository:
             self.conn.commit()
             return cur.rowcount
 
+    def is_admin_user(self, user_id):
+        with self.conn.cursor() as cur:
+            cur.execute('SELECT 1 FROM admin_users WHERE user_id = %s', (user_id,))
+            return cur.fetchone() is not None
+
     def close(self):
         self.conn.close()
