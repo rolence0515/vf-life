@@ -128,9 +128,9 @@ def verify_reset_token(token, expires_sec=3600):
 
 def send_reset_email(to_email, token):
     reset_link = url_for('reset_password', token=token, _external=True)
-    subject = '密碼重設連結'
-    body = f'請點擊以下連結重設密碼：{reset_link}\n\n如果您沒有申請重設密碼，請忽略此信。'
-    msg = MIMEText(body, 'plain', 'utf-8')
+    subject = '雙生紫焰直播回放平台 - 密碼重設連結'
+    body = render_template('mail_templates/reset_password.html', reset_link=reset_link)
+    msg = MIMEText(body, 'html', 'utf-8')
     msg['Subject'] = subject
     msg['From'] = getattr(config, 'EMAIL_USER', 'noreply@example.com')
     msg['To'] = to_email

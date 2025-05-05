@@ -1,6 +1,7 @@
 {
     "version": "0.2.0",
     "configurations": [
+        
         {
             "name": "vf-life",
             "type": "python",
@@ -13,7 +14,11 @@
                 "DB_PASSWORD": "Test123456!",
                 "DB_PORT": "5432",
                 "DB_USER": "postgres",
-                "DB_NAME": "postgres"
+                "DB_NAME": "postgres",
+                "EMAIL_HOST": "smtp.gmail.com",
+                "EMAIL_PORT": "465",
+                "EMAIL_USER": "activity@violetflames.com",
+                "EMAIL_PASSWORD": "xfhx ovkq fftk xrwa"
             },
             "python": "/Users/rolence/.local/share/virtualenvs/vf-timeline-OJszKKn5/bin/python" // 指定新的 pipenv 虛擬環境 Python 路徑
         }
