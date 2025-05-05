@@ -20,4 +20,4 @@ COPY . /app
 RUN pip install --no-cache-dir -r requirements.txt
 
 # 啟動應用
-CMD gunicorn -b 0.0.0.0:8080 app:app --workers=1 --threads=5 --timeout=240 --worker-class=gthread
+CMD gunicorn -b 0.0.0.0:8080 app:app --workers=2 --threads=5 --timeout=120 --worker-class=gthread
