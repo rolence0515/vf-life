@@ -210,6 +210,10 @@ def api_videos_by_series():
 def member_sample():
     # 這個 sample 頁面不需要登入，也不需要資料庫，直接渲染假資料
     return render_template('member_sample.html')
+
+@app.route('/faqs')
+def faqs():
+    return render_template('faqs.html')
     
 if __name__ == '__main__':
     app.run(debug=True, port=8080)
