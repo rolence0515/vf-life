@@ -14,11 +14,13 @@ import smtplib
 from email.mime.text import MIMEText
 from admin_blueprint import admin_bp
 from lib.login_required import login_required
+import logging
 
 app = Flask(__name__)
-app.secret_key = secrets.token_urlsafe(32)  # 使用隨機產生的安全密鑰
+app.secret_key = os.environ.get('SECRET_KEY', 'vf-life-20240506-very-secret-key')  # 固定密鑰，建議用環境變數
 app.permanent_session_lifetime = timedelta(days=30)  # 設定 session 有效期 30 天
 app.register_blueprint(admin_bp)
+logging.basicConfig(level=logging.INFO)
 
 @app.route('/')
 def home():
@@ -201,6 +203,7 @@ def page_not_found(e):
 def api_videos_by_series():
     user_email = session.get('user_email')
     series_id = request.json.get('series_id')
+    logging.info(f"[api_videos_by_series] user_email: {user_email}, series_id: {series_id}")
     repo = VideoRepository()
     video_list = repo.get_videos_with_status(user_email, series_id)
     repo.close()

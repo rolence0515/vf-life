@@ -289,7 +289,8 @@
               window.location.href = '/buy';
           },
           setActiveSeries(id) {
-              if (this.activeSeriesId === id) return;
+              console.log('點擊系列id:', id);
+              if (this.loading) return; // 若正在 loading，直接 return，避免重複請求
               this.activeSeriesId = id;
               this.setActiveSeriesNameById(id);
               this.loading = true;
@@ -299,7 +300,8 @@
                   headers: {
                       'Content-Type': 'application/json'
                   },
-                  body: JSON.stringify({ series_id: id })
+                  body: JSON.stringify({ series_id: id }),
+                  credentials: 'same-origin' // 1. 確保帶上 session cookie
               })
               .then(res => res.json())
               .then(data => {
@@ -308,7 +310,8 @@
               })
               .catch(err => {
                   this.loading = false;
-                  alert('取得影片清單失敗');
+                  console.log('取得影片清單失敗:', err);
+                  alert('取得影片清單失敗，請稍後再試。');
               });
           },
           setActiveSeriesNameById(id) {

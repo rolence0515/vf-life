@@ -1,11 +1,19 @@
 from functools import wraps
-from flask import session, flash, redirect, url_for
+from flask import session, flash, redirect, url_for, request, jsonify
+import logging
 from lib.user_repository import UserRepository
 
 def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if not session.get('logged_in'):
+            # 若為 API 路徑則回傳 JSON
+            if request.path.startswith('/api/'):
+                logging.warning('API 未登入，回傳 401 JSON')
+                logging.info(f'session: {dict(session)}')
+                logging.info(f'request.headers: {dict(request.headers)}')
+                logging.info(f'request.cookies: {request.cookies}')
+                return jsonify({'error': '未登入，請先登入'}), 401
             flash('請先登入', 'warning')
             return redirect(url_for('login'))
         return f(*args, **kwargs)
