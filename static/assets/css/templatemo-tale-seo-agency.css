@@ -1777,6 +1777,17 @@ Most Asked Style
   padding-top: 0;
 }
 
+/* FAQ 區塊 li 文字顏色與字體與外層 p 一致 */
+.most-asked .accordion-body p,
+.most-asked .accordion-body ul li {
+  color: #1f2937; /* 與 --color-text 變數一致，若有自訂可改為 var(--color-text) */
+  font-family: 'Inter', 'Noto Sans TC', 'Microsoft JhengHei', Arial, sans-serif;
+  font-size: 1rem;
+}
+.most-asked .accordion-body ul li {
+  margin-bottom: 0.5em;
+}
+
 .most-asked #free-quote {
   border-radius: 23px;
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.10);
