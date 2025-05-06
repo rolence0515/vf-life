@@ -138,7 +138,7 @@
                     <div class="message-body">
                       <a href="javascript:void(0)" class="d-flex align-items-center gap-2 dropdown-item">
                         <i class="ti ti-user fs-6"></i>
-                        <p class="mb-0 fs-3">{{ session['user_email'] }}</p>
+                        <p class="mb-0 fs-3">[[ user_email ]]</p>
                       </a>
                       <a href="/change-password" class="d-flex align-items-center gap-2 dropdown-item">
                         <i class="ti ti-key fs-6"></i>
@@ -163,10 +163,18 @@
                 </div>
                 <div class="col-9 col-md-10">
                   <h4 class="mb-2">感謝你購買聯票，歡迎回到直播回放後台</h4>
-                  <p class="mb-0 ">每一場直播都是未來的線索，歡迎你隨時回到這裡回看、整理、內化，創造屬於你自己的新人生腳本
-                    ✨</p>
+                  <p class="mb-0">每一場直播都是未來的線索，歡迎你隨時回到這裡回看、整理、內化，創造屬於你自己的新人生腳本 ✨</p>
                 </div>
               </div>
+              <!-- 聯票匯入提醒 alert info Start -->
+              <div class="alert alert-info d-flex align-items-center mt-3 mb-0" role="alert">
+                <iconify-icon icon="mdi:information" class="me-2" width="24" height="24"></iconify-icon>
+                <div>
+                  聯票的購買資料會由售票系統於活動開始前 8 天統一匯入本系統。<br/>
+                  如果你已購買聯票，卻在這裡看到「未購買」的狀態，請不用擔心，等候匯入作業完成後即可正常觀看回放。如有疑問請聯絡客服協助。
+                </div>
+              </div>
+              <!-- 聯票匯入提醒 alert info End -->
             </div>
           </div>
           <div class="card">
@@ -199,8 +207,8 @@
                           @click="openVimeo(item.vimeoUrl)">觀看回放</button>
                         <button v-else-if="item.status === 'bought_ended'" class="btn btn-sm btn-outline-secondary" disabled>回放已結束
                         </button>
-                        <a v-else-if="item.status === 'not_bought_can_buy' && item.buy_url" :href="item.buy_url" target="_blank" class="btn btn-sm btn-success">立即購買</a>
-                        <button v-else-if="item.status === 'not_bought_can_buy'" class="btn btn-sm btn-success" @click="goBuy(item)">立即購買</button>
+                        <a v-else-if="item.status === 'not_bought_can_buy' && item.buy_url" :href="item.buy_url" target="_blank" class="btn btn-sm btn-success">未購買</a>
+                        <button v-else-if="item.status === 'not_bought_can_buy'" class="btn btn-sm btn-success" @click="goBuy(item)">未購買</button>
                         <button v-else-if="item.status === 'not_bought_expired'" class="btn btn-sm btn-outline-dark"
                           disabled>不可購買(已過期限)</button>
                       </td>
@@ -234,9 +242,13 @@
           <h5 class="modal-title" id="vimeoModalLabel">講座回放</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-        <div class="modal-body">
+        <div class="modal-body position-relative">
           <div class="ratio ratio-16x9">
             <iframe id="vimeoPlayer" title="vimeo-player" src="" style="width:100%;height:100%" frameborder="0" allowfullscreen></iframe>
+          </div>
+          <!-- User Email Overlay -->
+          <div id="emailOverlay" class="position-fixed top-0 end-0 p-2 bg-dark text-white rounded" style="z-index: 1050;">
+            {{ user_email }}
           </div>
         </div>
       </div>
@@ -253,6 +265,7 @@
               videoList: {{ video_list|tojson|safe }},
               seriesList: {{ series_list|tojson|safe }},
               activeSeriesId: {{ active_series_id }},
+              user_email: '{{ user_email }}',
               activeSeriesName: '', // 新增系列名稱
               loading: false
           }
@@ -302,6 +315,33 @@
               this.activeSeriesName = found ? found.name : '';
           }
       }
+  });
+
+  document.addEventListener('fullscreenchange', () => {
+    const emailOverlay = document.getElementById('emailOverlay');
+    const vimeoPlayer = document.getElementById('vimeoPlayer');
+
+    if (document.fullscreenElement) {
+      // Check if the fullscreen element is the iframe
+      if (vimeoPlayer === document.fullscreenElement) {
+        const fullscreenContainer = vimeoPlayer.parentElement;
+        fullscreenContainer.style.position = 'relative';
+        fullscreenContainer.appendChild(emailOverlay);
+        emailOverlay.style.position = 'absolute';
+        emailOverlay.style.top = '10px';
+        emailOverlay.style.right = '10px';
+        emailOverlay.style.zIndex = '9999';
+        emailOverlay.style.display = 'block';
+      }
+    } else {
+      // Restore the email overlay to its original position
+      document.body.appendChild(emailOverlay);
+      emailOverlay.style.position = 'fixed';
+      emailOverlay.style.top = '0';
+      emailOverlay.style.right = '0';
+      emailOverlay.style.zIndex = '1050';
+      emailOverlay.style.display = 'block';
+    }
   });
   </script>
 </body>

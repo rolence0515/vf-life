@@ -34,7 +34,7 @@ def member_videos():
     active_series_id = series_list[0]['id'] if series_list else None
     video_list = repo.get_videos_with_status(user_email, active_series_id)
     repo.close()
-    return render_template('member_videos.html', video_list=video_list, series_list=series_list, active_series_id=active_series_id)
+    return render_template('member_videos.html', video_list=video_list, series_list=series_list, active_series_id=active_series_id, user_email=user_email)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
