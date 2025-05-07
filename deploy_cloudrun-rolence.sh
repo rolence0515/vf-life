@@ -13,7 +13,7 @@ MEMORY="1024Mi"
 ENV_FILE_PREFIX=".env"
 
 # Google Cloud 專案 ID
-PROJECT_ID="ardent-strength-459016-s3"
+PROJECT_ID="rolence-project"
 
 # Cloud Run 部署區域
 REGION="asia-east2"
@@ -33,7 +33,7 @@ PROD_MAX_INSTANCES=10
 # ====================
 # Cloud SQL 實例連線名稱（方便未來修改）
 # ====================
-CLOUDSQL_INSTANCE="ardent-strength-459016-s3:asia-east2:vf-life-uat-db"
+CLOUDSQL_INSTANCE="rolence-project:asia-east2:vf-life-uat-db"
 echo "🔍 CLOUDSQL_INSTANCE = $CLOUDSQL_INSTANCE"
 
 # 檢查是否提供了環境參數
@@ -70,7 +70,6 @@ else
 fi
 
 IMAGE="gcr.io/$PROJECT_ID/$SERVICE_NAME"
-echo "🔍 IMAGE = $IMAGE"
 
 # ====================
 # 建置 Docker 映像

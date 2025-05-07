@@ -95,9 +95,9 @@ A: 請檢查腳本輸出的錯誤訊息，並確認以下事項：
 ### Q: 如何查看部署後的日誌？
 A: 您可以使用以下指令查看 Cloud Run 的日誌：
 ```bash
-gcloud run services logs read mozi-chat-ai-uat --project="rolence-project" --region="asia-northeast1" --limit=100
+gcloud run services logs read vf-life-uat --project="rolence-project" --region="asia-east2" --limit=100
 ```
-請將 `<SERVICE_NAME>` 替換為您的服務名稱，例如 `mozi-chat-ai-uat` 或 `mozi-chat-ai-prod`。
+請將 `<SERVICE_NAME>` 替換為您的服務名稱，例如 `vf-life-uat` 或 `vf-life-prod`。
 
 ---
 
