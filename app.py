@@ -196,6 +196,9 @@ def logout():
 
 @app.errorhandler(404)
 def page_not_found(e):
+    # 如果是 admin 路徑，顯示 admin_404.html
+    if request.path.startswith('/admin'):
+        return render_template('admin_404.html'), 404
     return render_template('404.html'), 404
 
 @app.route('/api/videos_by_series', methods=['POST'])

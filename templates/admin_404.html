@@ -1,0 +1,22 @@
+{% extends 'admin_base.html' %}
+{% block content %}
+<div class="container-fluid">
+  <div class="card">
+    <div class="card-body">
+      <div class="row align-items-center g-2">
+        <div class="col-3 col-md-2 text-center">
+          <img src="/static/assets/images/backgrounds/product-tip.png" alt="image" class="img-fluid" style="max-width:80px;" />
+        </div>
+        <div class="col-9 col-md-10">
+          <h2 class="mb-2">找不到您要的管理員頁面</h2>
+          <p class="mb-0">很抱歉，您所查詢的管理員頁面不存在或已被移除。<br>請檢查網址是否正確，或返回管理首頁。</p>
+          <div class="main-button mt-4"><a href="/admin/">回到管理首頁</a></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="py-6 px-6 text-center">
+    <p class="mb-0 fs-5">© 2025 雙生紫焰 管理員後台｜僅供網站管理員使用</p>
+  </div>
+</div>
+{% endblock %}
