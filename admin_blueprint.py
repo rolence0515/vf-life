@@ -4,10 +4,6 @@ from lib.login_required import login_required, admin_user_required
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
 
 @admin_bp.route('/')
-@admin_user_required
-def admin_index():
-    return render_template('admin_sample.html')
-
 @admin_bp.route('/user')
 @admin_user_required
 def admin_user():
@@ -32,3 +28,7 @@ def admin_videos():
 @admin_user_required
 def admin_admin_users():
     return render_template('admin_admin_users.html')
+
+@admin_bp.app_errorhandler(404)
+def admin_page_not_found(e):
+    return render_template('admin_404.html'), 404
