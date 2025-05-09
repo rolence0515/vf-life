@@ -76,7 +76,7 @@ echo "🔍 IMAGE = $IMAGE"
 # 建置 Docker 映像
 # ====================
 echo "🚀 開始建置 Docker 映像並推送到 Container Registry..."
-gcloud builds submit --tag $IMAGE
+gcloud builds submit --tag $IMAGE --verbosity=debug
 
 # 檢查 build 是否成功
 if [ $? -ne 0 ]; then
