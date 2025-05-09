@@ -6,26 +6,43 @@
 
 ---
 
+## 執行環境參數說明
+
+本工具支援多種執行環境，請於執行時以第一個參數指定環境名稱：
+- dev：開發環境
+- uat：測試環境
+- prod：正式環境
+
+執行範例：
+```
+python user_buy_serial_tool.py uat yourfile.csv
+```
+
+工具會自動載入對應的 `.env.dev`、`.env.uat` 或 `.env.prod` 檔案，並將內容設為環境變數。載入後會顯示所有環境變數內容，請使用者確認無誤後輸入 y 才會繼續執行。
+
+---
+
 ## CSV 檔案格式
 
 - 檔名範例：`USER_BUY_SERIAL_SAMPLE.csv`
 - 檔案需有 header，格式如下：
 
 ```
-email,serial1,serial2
-user1@example.com,1,0
-user2@example.com,1,1
+name,email,serial1,serial2
+王小明,user1@example.com,1,0
+李小華,user2@example.com,1,1
 ...（多筆資料）
 ```
-- `serial1` 代表購買上半場（series_id=1），`serial2` 代表購買下半場（series_id=2）
+- `name` 為會員姓名
 - `email` 為會員帳號
+- `serial1` 代表購買上半場（series_id=1），`serial2` 代表購買下半場（series_id=2）
 
 ---
 
 ## 資料庫操作說明
 
 ### 1. user 表
-- 若 email 不存在，則新增 user，密碼為 email 做 sha256 雜湊後取前 6 碼（參考 README_DB 說明）
+- 若 email 不存在，則新增 user，**同時寫入 name 欄位**，密碼為 email 做 sha256 雜湊後取前 6 碼（參考 README_DB 說明）
 - 若 email 已存在，則不異動 user 表
 - 需記錄 user_id 供後續使用
 
@@ -39,6 +56,7 @@ user2@example.com,1,1
 ## 執行結果輸出
 
 - 產生一份結果 csv，欄位如下：
+  - name
   - email
   - user_id
   - new_user（1=新建，0=已存在）
@@ -75,19 +93,19 @@ user2@example.com,1,1
 
 ## 範例
 
-| email              | serial1 | serial2 |
-|--------------------|---------|---------|
-| user1@example.com  | 1       | 0       |
-| user2@example.com  | 1       | 1       |
-| user3@example.com  | 0       | 1       |
+| name   | email              | serial1 | serial2 |
+|--------|--------------------|---------|---------|
+| 王小明 | user1@example.com  | 1       | 0       |
+| 李小華 | user2@example.com  | 1       | 1       |
+| ...    | ...                | ...     | ...     |
 
 執行後產生結果 csv：
 
-| email              | user_id | new_user | default_pw | videos_count |
-|--------------------|---------|----------|------------|--------------|
-| user1@example.com  | 101     | 1        | ab12cd     | 3            |
-| user2@example.com  | 102     | 0        |            | 2            |
-| user3@example.com  | 103     | 1        | 34ef56     | 1            |
+| name   | email              | user_id | new_user | default_pw | videos_count |
+|--------|--------------------|---------|----------|------------|--------------|
+| 王小明 | user1@example.com  | 101     | 1        | ab12cd     | 3            |
+| 李小華 | user2@example.com  | 102     | 0        |            | 2            |
+| ...    | ...                | ...     | ...      | ...        | ...          |
 
 ---
 

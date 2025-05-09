@@ -20,6 +20,7 @@ print(password)  # 例如: c7b6ac
 | 欄位名稱     | 型別         | 說明             |
 | ------------ | ------------ | ---------------- |
 | id           | SERIAL       | 使用者唯一ID     |
+| name         | VARCHAR(255) | 姓名             |
 | email        | VARCHAR(255) | 帳號(Email，唯一)|
 | password     | VARCHAR(255) | 密碼(加密不可逆) |
 | created_at   | TIMESTAMP    | 建立日期         |
@@ -28,6 +29,7 @@ print(password)  # 例如: c7b6ac
 ```sql
 CREATE TABLE "user" (
   id SERIAL PRIMARY KEY, -- 使用者唯一ID
+  name VARCHAR(255), -- 姓名
   email VARCHAR(255) UNIQUE NOT NULL, -- 帳號(Email，唯一)
   password VARCHAR(255) NOT NULL, -- 密碼(加密不可逆)
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, -- 建立日期
