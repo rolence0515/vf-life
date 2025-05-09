@@ -18,7 +18,7 @@ ARTIFACT_REPO="web-deploy"    # Artifact Registry 倉庫名稱
 UAT_SERVICE_NAME="vf-life-uat"
 UAT_MAX_INSTANCES=4
 PROD_SERVICE_NAME="vf-life-prod"
-PROD_MAX_INSTANCES=10
+PROD_MAX_INSTANCES=20
 
 CLOUDSQL_INSTANCE="ardent-strength-459016-s3:asia-east2:vf-life-uat-db"
 echo "🔍 CLOUDSQL_INSTANCE = $CLOUDSQL_INSTANCE"
@@ -58,6 +58,18 @@ IMAGE_TAG=${3:-$GIT_HASH}
 
 IMAGE_URI="$ARTIFACT_REGION-docker.pkg.dev/$PROJECT_ID/$ARTIFACT_REPO/$IMAGE_NAME:$IMAGE_TAG"
 echo "🔍 IMAGE_URI = $IMAGE_URI"
+
+# 檢查 Colima 是否啟動，若未啟動則自動啟動
+if ! colima status | grep -q 'Running'; then
+    echo "🔄 Colima 尚未啟動，正在啟動 Colima..."
+    colima start
+    if [ $? -ne 0 ]; then
+        echo "❌ Colima 啟動失敗，請檢查錯誤訊息。"
+        exit 1
+    fi
+else
+    echo "✅ Colima 已啟動。"
+fi
 
 echo "🚀 開始建置 Docker 映像..."
 docker build -t $IMAGE_URI .
