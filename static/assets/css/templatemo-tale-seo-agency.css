@@ -354,7 +354,7 @@ Header Style
 }
 
 .header-area .main-nav .logo {
-  margin-top: 25px;
+  margin-top: 10px;
   flex-basis: 20%;
   -webkit-transition: all 0.3s ease 0s;
   -moz-transition: all 0.3s ease 0s;
@@ -377,6 +377,8 @@ Header Style
   transition: all 0.3s ease 0s;
   position: relative;
   z-index: 999;
+  display: flex;
+  align-items: center;
 }
 
 .nav {
@@ -2034,8 +2036,30 @@ body {
 @media (max-width: 576px) {
   .btn-buy-ticket {
     top: 6px;
-    right: 6px;
+    left: 6px;
+    right: auto;
     padding: 6px 12px;
     font-size: 13px;
+  }
+}
+
+.background-header .main-nav .logo img {
+  max-width: 40px; /* 縮小 logo 的大小 */
+}
+
+.background-header .main-nav .logo h1 {
+  font-size: 1rem; /* 調整標題字體大小 */
+  line-height: 80px; /* 垂直置中 */
+}
+
+.background-header .main-nav {
+  display: flex;
+  align-items: center; /* 垂直置中內容 */
+  height: 80px; /* 桌機版高度 */
+}
+
+@media (max-width: 767px) {
+  .background-header .main-nav {
+    height: auto; /* 手機版移除高度限制 */
   }
 }
