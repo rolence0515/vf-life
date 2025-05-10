@@ -4,12 +4,12 @@
 UAT_INSTANCE="vf-life-uat-db"
 UAT_DB="postgres"
 UAT_USER="postgres"
-UAT_PROJECT="rolence-project"
+UAT_PROJECT="ardent-strength-459016-s3"
 
 PROD_INSTANCE="vf-life-prod-db"
 PROD_DB="postgres"
 PROD_USER="postgres"
-PROD_PROJECT="rolence-project"
+PROD_PROJECT="ardent-strength-459016-s3"
 
 # ===== 參數判斷 =====
 if [[ "$1" == "uat" ]]; then
