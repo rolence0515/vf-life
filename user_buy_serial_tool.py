@@ -1,19 +1,19 @@
 import click
 import psycopg2
 from psycopg2.extras import RealDictCursor
-from config import config
 import csv
 import hashlib
 import time
 import os
+from dotenv import load_dotenv
 
 # 產生預設密碼（sha256(email)取前6碼）
 def gen_default_pw(email):
     return hashlib.sha256(email.encode('utf-8')).hexdigest()[:6]
 
 @click.command()
-@click.argument('env', required=False, default='dev')
-@click.argument('csv_path', required=True, default='user_buy_serial_input_test.csv')
+@click.argument('env', required=False, default='uat')
+@click.argument('csv_path', required=True, default='20250508_會員訂單_正式名單.csv')
 def user_buy_serial_tool(env, csv_path):
     """
     批次匯入會員購買影片系列(csv)，自動建立/查詢會員、開通會員可觀看影片權限。
@@ -29,28 +29,10 @@ def user_buy_serial_tool(env, csv_path):
     if not env or env not in ('uat', 'prod', 'dev'):
         print('請輸入執行環境參數 (dev、uat 或 prod)，例如: python user_buy_serial_tool.py uat yourfile.csv')
         return
+    # 根據環境參數載入對應的 .env 檔案
     env_file = f'.env.{env}'
-    if not os.path.exists(env_file):
-        print(f'找不到 {env_file}，請確認檔案存在於當前目錄')
-        return
-    env_vars = {}
-    with open(env_file, 'r', encoding='utf-8') as f:
-        for line in f:
-            line = line.strip()
-            if not line or line.startswith('#') or '=' not in line:
-                continue
-            k, v = line.split('=', 1)
-            k = k.strip()
-            v = v.strip().strip('"').strip("'")
-            os.environ[k] = v
-            env_vars[k] = v
-    print(f'已載入 {env_file}，內容如下：')
-    for k, v in env_vars.items():
-        print(f'{k}={v}')
-    confirm_env = input('請確認上述環境變數內容無誤，正確請輸入 y 繼續，否則請按其他鍵取消：')
-    if confirm_env.strip().lower() != 'y':
-        print('已取消執行。')
-        return
+    load_dotenv(env_file)
+    print(f'已載入環境檔案: {env_file}')
     from config import config
 
     #===== 2. 取得資料庫連線資訊 =====
@@ -60,10 +42,25 @@ def user_buy_serial_tool(env, csv_path):
     db_user = config.DB_USER
     db_name = config.DB_NAME
 
+    # Print the loaded environment variables for debugging
+    print("Debugging Environment Variables:")
+    print(f"DB_HOST: {db_host}")
+    print(f"DB_PORT: {db_port}")
+    print(f"DB_USER: {db_user}")
+    print(f"DB_NAME: {db_name}")
+    print(f"DB_PASSWORD: {db_password}")
+
+    # 等待使用者確認後繼續
+    user_input = input("請確認上述環境變數內容無誤，正確請輸入 y 繼續，否則請按其他鍵取消：")
+    if user_input.lower() != 'y':
+        print("操作已取消。")
+        return
+
     conn = None
     result_rows = []
     timestamp = int(time.time())
-    output_csv = f'user_buy_serial_result_{timestamp}.csv'
+    # 修改輸出的檔名，加入環境變數來區別
+    output_csv = f'user_buy_serial_result_{env}_{timestamp}.csv'
 
     try:
         conn = psycopg2.connect(
@@ -83,10 +80,15 @@ def user_buy_serial_tool(env, csv_path):
                     # 標準化 row key
                     row = {k.strip().lower(): v for k, v in row.items()}
                     name = row.get('name', '').strip()
+                    # 如果 name 為空，跳過該 row
+                    if not name:
+                        print(f'跳過無效資料行: {row}')
+                        continue
                     email = row.get('email', '').strip()
                     serial1 = int(row.get('serial1', 0))
                     serial2 = int(row.get('serial2', 0))
                     print(f'處理: name={name}, email={email}, serial1={serial1}, serial2={serial2}')
+
 
                     #===== 3-1. 檢查/建立 user =====
                     cur.execute("SELECT id FROM \"user\" WHERE email=%s", (email,))
@@ -97,13 +99,13 @@ def user_buy_serial_tool(env, csv_path):
                         default_pw = ''
                         print(f'已存在會員: name={name}, email={email}, user_id={user_id}')
                     else:
-                        pw = gen_default_pw(email)
+                        default_pw = gen_default_pw(email)
+                        pw = hashlib.sha256(default_pw.encode()).hexdigest()
                         cur.execute("INSERT INTO \"user\" (name, email, password) VALUES (%s, %s, %s) RETURNING id", (name, email, pw))
                         user_id = cur.fetchone()['id']
                         conn.commit()
                         new_user = 1
-                        default_pw = pw
-                        print(f'新增會員: name={name}, email={email}, user_id={user_id}, 預設密碼={pw}')
+                        print(f'新增會員: name={name}, email={email}, user_id={user_id}, 預設密碼={default_pw}')
 
                     #===== 3-2. 查詢購買系列對應影片 =====
                     video_ids = set()
