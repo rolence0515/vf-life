@@ -6,7 +6,6 @@ RUN mkdir -p /cloudsql
 
 # 安裝必要的工具
 RUN apt-get update && apt-get install -y \
-    openvpn \
     net-tools && \
     apt-get clean
 
