@@ -354,11 +354,16 @@ Header Style
 }
 
 .header-area .main-nav .logo {
+  margin-top: 25px;
   flex-basis: 20%;
   -webkit-transition: all 0.3s ease 0s;
   -moz-transition: all 0.3s ease 0s;
   -o-transition: all 0.3s ease 0s;
   transition: all 0.3s ease 0s;
+}
+
+.background-header .main-nav .logo {
+  margin-top: 10px;
 }
 
 .header-area .main-nav .nav {
@@ -372,8 +377,6 @@ Header Style
   transition: all 0.3s ease 0s;
   position: relative;
   z-index: 999;
-  display: flex;
-  align-items: center;
 }
 
 .nav {
@@ -2006,8 +2009,7 @@ body {
 .btn-buy-ticket {
   position: absolute;
   top: 10px;
-  left: 10px;
-  right: auto;
+  right: 10px;
   z-index: 2;
   background: #c03afe;
   color: #fff !important;
@@ -2032,24 +2034,8 @@ body {
 @media (max-width: 576px) {
   .btn-buy-ticket {
     top: 6px;
-    left: 6px;
-    right: auto;
+    right: 6px;
     padding: 6px 12px;
     font-size: 13px;
   }
-}
-
-.background-header .main-nav .logo img {
-  max-width: 40px; /* 縮小 logo 的大小 */
-}
-
-.background-header .main-nav .logo h1 {
-  font-size: 1rem; /* 調整標題字體大小 */
-  line-height: 80px; /* 垂直置中 */
-}
-
-.background-header .main-nav {
-  height: 80px; /* 確保主導航高度一致 */
-  display: flex;
-  align-items: center; /* 垂直置中內容 */
 }
