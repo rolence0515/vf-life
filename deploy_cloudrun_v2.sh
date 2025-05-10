@@ -11,7 +11,7 @@ MEMORY="1024Mi"
 # ====================
 ENV_FILE_PREFIX=".env"
 PROJECT_ID="ardent-strength-459016-s3"
-REGION="asia-east2"
+REGION="asia-east1"
 ARTIFACT_REGION="asia-east1"  # Artifact Registry 區域
 ARTIFACT_REPO="web-deploy"    # Artifact Registry 倉庫名稱
 
@@ -20,8 +20,8 @@ UAT_MAX_INSTANCES=4
 PROD_SERVICE_NAME="vf-life-prod"
 PROD_MAX_INSTANCES=20
 
-CLOUDSQL_INSTANCE="ardent-strength-459016-s3:asia-east2:vf-life-uat-db"
-echo "🔍 CLOUDSQL_INSTANCE = $CLOUDSQL_INSTANCE"
+UAT_CLOUDSQL_INSTANCE="ardent-strength-459016-s3:asia-east2:vf-life-uat-db"
+PROD_CLOUDSQL_INSTANCE="ardent-strength-459016-s3:asia-east2:vf-life-prod-db"
 
 if [ -z "$1" ]; then
     echo "❌ 請提供環境參數：uat 或 prod"
@@ -43,13 +43,17 @@ set +o allexport
 if [ "$ENVIRONMENT" == "uat" ]; then
     SERVICE_NAME="$UAT_SERVICE_NAME"
     MAX_INSTANCES=$UAT_MAX_INSTANCES
+    CLOUDSQL_INSTANCE="$UAT_CLOUDSQL_INSTANCE"
 elif [ "$ENVIRONMENT" == "prod" ]; then
     SERVICE_NAME="$PROD_SERVICE_NAME"
     MAX_INSTANCES=$PROD_MAX_INSTANCES
+    CLOUDSQL_INSTANCE="$PROD_CLOUDSQL_INSTANCE"
 else
     echo "❌ 無效的環境參數：$ENVIRONMENT。請使用 uat 或 prod。"
     exit 1
 fi
+
+echo "🔍 CLOUDSQL_INSTANCE = $CLOUDSQL_INSTANCE"
 
 # 允許自訂映像名稱與 tag
 IMAGE_NAME=${2:-$SERVICE_NAME}
