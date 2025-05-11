@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, session, get_flashed_messages, jsonify
+from flask import Flask, render_template, request, redirect, url_for, flash, session, get_flashed_messages, jsonify, send_from_directory
 import requests
 from functools import wraps
 import secrets
@@ -239,6 +239,14 @@ def member_sample():
 @app.route('/faqs')
 def faqs():
     return render_template('faqs.html')
+
+@app.route('/robots.txt')
+def robots():
+    return send_from_directory(app.static_folder, 'robots.txt')
+
+@app.route('/sitemap.xml')
+def sitemap():
+    return send_from_directory(app.static_folder, 'sitemap.xml')
 
 # @app.route('/debug-config')
 # def debug_config():

@@ -1,0 +1,6 @@
+User-agent: *
+Disallow: /admin/
+Disallow: /change-password/
+Disallow: /reset-password/
+
+Sitemap: https://replay@violetflames.com/static/sitemap.xml
