@@ -212,6 +212,25 @@ def api_videos_by_series():
     repo.close()
     return jsonify({'video_list': video_list})
 
+@app.route('/api/next_available_video', methods=['GET'])
+def api_next_available_video():
+    from datetime import datetime
+
+    today = datetime.now()
+
+    repo = VideoRepository()
+    next_video = repo.get_next_available_video(today)  # 移除不必要的第一個參數
+    repo.close()
+
+    if next_video:
+        return jsonify({
+            'title': next_video['title'],
+            'available_at': next_video['available_at'],
+            'viewable_until': next_video['expired_at']
+        })
+    else:
+        return jsonify({'message': 'No upcoming videos available.'}), 404
+
 @app.route('/member_sample')
 def member_sample():
     # 這個 sample 頁面不需要登入，也不需要資料庫，直接渲染假資料

@@ -71,5 +71,18 @@ class VideoRepository:
             cur.execute('SELECT id, name FROM series ORDER BY id ASC')
             return [{'id': row[0], 'name': row[1]} for row in cur.fetchall()]
 
+    def get_next_available_video(self, today):
+        with self.conn.cursor(cursor_factory=RealDictCursor) as cur:
+            # 查詢距離今天最近的 available_at 日期的影片
+            sql = '''
+                SELECT title, available_at, expired_at
+                FROM videos
+                WHERE available_at > %s
+                ORDER BY available_at ASC
+                LIMIT 1
+            '''
+            cur.execute(sql, (today,))
+            return cur.fetchone()
+
     def close(self):
         self.conn.close()

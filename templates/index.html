@@ -234,14 +234,26 @@
 
 {% block scripts %}
 <script>
-  var countdownDate = new Date("2025-05-15T00:00:00+08:00").getTime() / 1000;
-  new FlipDown(countdownDate, {
-    headings: ['天', '時', '分', '秒']
-  })
-    .start()
-    .ifEnded(() => {
-      console.log("倒數結束！");
-    });
-</script>
+  fetch('/api/next_available_video')
+    .then(response => response.json())
+    .then(data => {
+      if (data.title && data.available_at) {
+        // 更新標題
+        document.querySelector('h2').textContent = `下一場講座倒數 - ${data.title}`;
 
+        // 初始化倒數計時器
+        var countdownDate = new Date(data.available_at).getTime() / 1000;
+        new FlipDown(countdownDate, {
+          headings: ['天', '時', '分', '秒']
+        })
+          .start()
+          .ifEnded(() => {
+            console.log("倒數結束！");
+          });
+      } else {
+        console.error('無法獲取下一場影片資訊');
+      }
+    })
+    .catch(error => console.error('Error fetching next available video:', error));
+</script>
 {% endblock %}
