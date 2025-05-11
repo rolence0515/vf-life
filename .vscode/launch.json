@@ -20,7 +20,7 @@
                 // "EMAIL_USER": "activity@violetflames.com",
                 // "EMAIL_PASSWORD": "xfhx ovkq fftk xrwa"
             },
-            "python": "/Users/rolence/.local/share/virtualenvs/vf-timeline-OJszKKn5/bin/python" // 指定新的 pipenv 虛擬環境 Python 路徑
+            "python": "/Volumes/My Passport for Mac/my-project/vf/vf-life/venv/bin/python"
         }
     ]
 }
