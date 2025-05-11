@@ -220,6 +220,12 @@ def member_sample():
 @app.route('/faqs')
 def faqs():
     return render_template('faqs.html')
-    
+
+# @app.route('/debug-config')
+# def debug_config():
+#     # 將 config 中的所有屬性和值輸出到前端
+#     config_values = {key: getattr(config, key, None) for key in dir(config) if not key.startswith('__') and not callable(getattr(config, key))}
+#     return jsonify(config_values)
+
 if __name__ == '__main__':
     app.run(debug=True, port=8080)
