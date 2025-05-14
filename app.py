@@ -46,7 +46,7 @@ def login():
         hcaptcha_token = request.form.get('h-captcha-response')
         if not hcaptcha_token:
             flash('請完成驗證碼', 'danger')
-            return render_template('login.html')
+            return render_template('login.html', username=username)
         # hCaptcha 驗證
         hcaptcha_secret = 'ES_e3cff9ee84a04dc08df9f3543d599641'  # 請換成你的 secret key
         verify_url = 'https://hcaptcha.com/siteverify'
@@ -60,10 +60,10 @@ def login():
             result = resp.json()
             if not result.get('success'):
                 flash('驗證碼失敗，請重試', 'danger')
-                return render_template('login.html')
+                return render_template('login.html', username=username)
         except Exception:
             flash('驗證服務異常，請稍後再試', 'danger')
-            return render_template('login.html')
+            return render_template('login.html', username=username)
         # 使用者資料庫驗證
         repo = UserRepository()
         user = repo.get_user_by_email(username)
@@ -82,7 +82,7 @@ def login():
         repo.close()
     else:
         get_flashed_messages()  # 清空殘留訊息
-    return render_template('login.html')
+    return render_template('login.html', username='')
 
 @app.route('/change-password', methods=['GET', 'POST'])
 def change_password():
@@ -200,6 +200,13 @@ def page_not_found(e):
     if request.path.startswith('/admin'):
         return render_template('admin_404.html'), 404
     return render_template('404.html'), 404
+
+@app.errorhandler(Exception)
+def handle_unexpected_error(e):
+    # 如果是 admin 路徑，顯示 admin_500.html
+    if request.path.startswith('/admin'):
+        return render_template('admin_500.html'), 500
+    return render_template('500.html'), 500
 
 @app.route('/api/videos_by_series', methods=['POST'])
 @login_required
