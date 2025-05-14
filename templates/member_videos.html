@@ -71,6 +71,16 @@
     .py-6.px-6.text-center {
       margin-top: auto;
     }
+
+    @media (max-width: 576px) {
+      th.ps-0, td:first-child {
+        width: 170px !important;
+        max-width: 170px !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important; /* 添加省略號 */
+        white-space: nowrap !important; /* 禁止換行 */
+      }
+    }
   </style>
 </head>
 
@@ -163,7 +173,7 @@
                 </div>
                 <div class="col-9 col-md-10">
                   <h4 class="mb-2">感謝你購買聯票，歡迎回到直播回放後台</h4>
-                  <p class="mb-0">每一場直播都是未來的線索，歡迎你隨時回到這裡回看、整理、內化，創造屬於你自己的新人生腳本 ✨</p>
+                  <p class="mb-0">每一場直播都是未來的線索，回放僅保留 10 天，歡迎你隨時回來整理、內化，創造屬於你自己的新人生腳本 ✨</p>
                 </div>
               </div>
               <!-- 聯票匯入提醒 alert info Start -->
