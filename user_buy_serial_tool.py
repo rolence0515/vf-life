@@ -147,18 +147,6 @@ def user_buy_serial_tool(env, csv_path):
                         conn.commit()  # 提交刪除操作
                         print(f'    刪除 serial2=0 的觀看權限: user_id={user_id}, 刪除影片數量={len(deleted_videos)}')
 
-
-                    #===== 3-4. 統計結果 =====
-                    result_rows.append({
-                        'name': name,
-                        'email': email,
-                        'user_id': user_id,
-                        'new_user': new_user,
-                        'default_pw': default_pw,
-                        'add_videos_count': add_count,
-                        'del_videos_count': del_count
-                    })
-
                     #===== 3-5. 統計結果 =====
                     result_rows.append({
                         'name': name,
