@@ -223,7 +223,7 @@ def api_videos_by_series():
 def api_next_available_video():
     from datetime import datetime
 
-    today = datetime.now()
+    today = datetime.now() + timedelta(days=1)
 
     repo = VideoRepository()
     next_video = repo.get_next_available_video(today)  # 移除不必要的第一個參數
