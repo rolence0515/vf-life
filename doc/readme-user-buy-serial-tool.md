@@ -50,6 +50,7 @@ name,email,serial1,serial2
 - 依據 csv 中 serial1/serial2 欄位值為 1，查詢 series_id=1/2 關聯的所有 videos
 - 將這些 videos 以 user_id 寫入 user_videos 表，代表開通觀看權限
 - 若 user_videos 已有相同 user_id, video_id，不重複寫入
+- 若 serial1/serial2 欄位值為 0，且 user_videos 表中已存在相應的 user_id 和 series_id=1/2 關聯的 videos，則刪除這些 video 的觀看權限
 
 ---
 

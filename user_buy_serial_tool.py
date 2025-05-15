@@ -132,6 +132,22 @@ def user_buy_serial_tool(env, csv_path):
                             print(f'    已存在 user_videos: user_id={user_id}, video_id={vid}')
                     conn.commit()
 
+                    #===== 3-4. 刪除觀看權限 (serial1/serial2 為 0) =====
+                    del_count = 0
+                    if serial1 == 0:
+                        cur.execute("DELETE FROM user_videos WHERE user_id=%s AND video_id IN (SELECT id FROM videos WHERE series_id=1) RETURNING video_id", (user_id,))
+                        deleted_videos = cur.fetchall()
+                        del_count += len(deleted_videos)
+                        conn.commit()  # 提交刪除操作
+                        print(f'    刪除 serial1=0 的觀看權限: user_id={user_id}, 刪除影片數量={len(deleted_videos)}')
+                    if serial2 == 0:
+                        cur.execute("DELETE FROM user_videos WHERE user_id=%s AND video_id IN (SELECT id FROM videos WHERE series_id=2) RETURNING video_id", (user_id,))
+                        deleted_videos = cur.fetchall()
+                        del_count += len(deleted_videos)
+                        conn.commit()  # 提交刪除操作
+                        print(f'    刪除 serial2=0 的觀看權限: user_id={user_id}, 刪除影片數量={len(deleted_videos)}')
+
+
                     #===== 3-4. 統計結果 =====
                     result_rows.append({
                         'name': name,
@@ -139,12 +155,24 @@ def user_buy_serial_tool(env, csv_path):
                         'user_id': user_id,
                         'new_user': new_user,
                         'default_pw': default_pw,
-                        'videos_count': add_count
+                        'add_videos_count': add_count,
+                        'del_videos_count': del_count
+                    })
+
+                    #===== 3-5. 統計結果 =====
+                    result_rows.append({
+                        'name': name,
+                        'email': email,
+                        'user_id': user_id,
+                        'new_user': new_user,
+                        'default_pw': default_pw,
+                        'add_videos_count': add_count,
+                        'del_videos_count': del_count
                     })
 
         #===== 4. 輸出結果csv =====
         with open(output_csv, 'w', newline='', encoding='utf-8') as f:
-            fieldnames = ['name', 'email', 'user_id', 'new_user', 'default_pw', 'videos_count']
+            fieldnames = ['name', 'email', 'user_id', 'new_user', 'default_pw', 'add_videos_count', 'del_videos_count']
             writer = csv.DictWriter(f, fieldnames=fieldnames)
             writer.writeheader()
             for r in result_rows:
