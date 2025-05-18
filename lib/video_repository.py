@@ -1,6 +1,8 @@
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from config import config
+import pytz
+from datetime import datetime
 
 class VideoRepository:
     def __init__(self):
@@ -33,8 +35,7 @@ class VideoRepository:
             cur.execute(sql, tuple(params))
             videos = cur.fetchall()
             result = []
-            from datetime import date, datetime
-            now = date.today()
+            now = datetime.now(pytz.timezone('Asia/Taipei')).date()
             for v in videos:
                 available = v['available_at']
                 expired = v['expired_at']
