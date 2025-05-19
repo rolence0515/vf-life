@@ -3,6 +3,10 @@ from psycopg2.extras import RealDictCursor
 from config import config
 
 class UserRepository:
+    def update_session_token(self, user_id, session_token):
+        with self.conn.cursor() as cur:
+            cur.execute('UPDATE "user" SET session_token = %s, updated_at = NOW() WHERE id = %s', (session_token, user_id))
+            self.conn.commit()
     def __init__(self):
         self.conn = psycopg2.connect(
             host=config.DB_HOST,

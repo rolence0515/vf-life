@@ -68,9 +68,12 @@ def login():
         repo = UserRepository()
         user = repo.get_user_by_email(username)
         if user and user['password'] == hashlib.sha256(password.encode()).hexdigest():
+            session_token = secrets.token_hex(32)
+            repo.update_session_token(user['id'], session_token)
             session['logged_in'] = True
             session['user_email'] = user['email']
-            session['user_id'] = user['id']  # 新增 user_id 進 session
+            session['user_id'] = user['id']
+            session['session_token'] = session_token
             if request.form.get('remember_me'):
                 session.permanent = True
             else:
@@ -191,6 +194,11 @@ def reset_password(token):
 
 @app.route('/logout')
 def logout():
+    user_id = session.get('user_id')
+    if user_id:
+        repo = UserRepository()
+        repo.update_session_token(user_id, None)
+        repo.close()
     session.clear()
     return redirect(url_for('home'))
 

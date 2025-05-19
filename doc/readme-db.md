@@ -23,6 +23,7 @@ print(password)  # 例如: c7b6ac
 | name         | VARCHAR(255) | 姓名             |
 | email        | VARCHAR(255) | 帳號(Email，唯一)|
 | password     | VARCHAR(255) | 密碼(加密不可逆) |
+| session_token| VARCHAR(255) | 單一登入用的 Session Token |
 | created_at   | TIMESTAMP    | 建立日期         |
 | updated_at   | TIMESTAMP    | 修改日期         |
 
@@ -32,6 +33,7 @@ CREATE TABLE "user" (
   name VARCHAR(255), -- 姓名
   email VARCHAR(255) UNIQUE NOT NULL, -- 帳號(Email，唯一)
   password VARCHAR(255) NOT NULL, -- 密碼(加密不可逆)
+  session_token VARCHAR(255), -- 單一登入用的 Session Token
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, -- 建立日期
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP -- 修改日期
 );

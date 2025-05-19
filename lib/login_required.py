@@ -16,6 +16,20 @@ def login_required(f):
                 return jsonify({'error': '未登入，請先登入'}), 401
             flash('請先登入', 'warning')
             return redirect(url_for('login'))
+        # 單一登入驗證
+        user_email = session.get('user_email')
+        session_token = session.get('session_token')
+        if not user_email or not session_token:
+            session.clear()
+            flash('請重新登入', 'danger')
+            return redirect(url_for('login'))
+        repo = UserRepository()
+        user = repo.get_user_by_email(user_email)
+        repo.close()
+        if not user or user.get('session_token') != session_token:
+            session.clear()
+            flash('您的帳號已在其他裝置登入，請重新登入', 'danger')
+            return redirect(url_for('login'))
         return f(*args, **kwargs)
     return decorated_function
 
