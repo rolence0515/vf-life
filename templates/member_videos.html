@@ -148,7 +148,10 @@
                     <div class="message-body">
                       <a href="javascript:void(0)" class="d-flex align-items-center gap-2 dropdown-item">
                         <i class="ti ti-user fs-6"></i>
-                        <p class="mb-0 fs-3">[[ user_email ]]</p>
+                        <div class="d-flex flex-column">
+                          <p class="mb-0 fs-3">[[ user_email ]]</p>
+                          <p class="mb-0 fs-4 text-muted">[[ user_name ]]</p>
+                        </div>
                       </a>
                       <a href="/change-password" class="d-flex align-items-center gap-2 dropdown-item">
                         <i class="ti ti-key fs-6"></i>
@@ -286,6 +289,7 @@
               seriesList: {{ series_list|tojson|safe }},
               activeSeriesId: {{ active_series_id }},
               user_email: '{{ user_email }}',
+              user_name: '{{ user_name }}',
               activeSeriesName: '', // 新增系列名稱
               loading: false
           }

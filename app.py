@@ -30,13 +30,17 @@ def home():
 @login_required
 def member_videos():
     user_email = session.get('user_email')
-    repo = VideoRepository()
-    # 取得系列 id 與名稱
-    series_list = repo.get_all_series()
-    active_series_id = series_list[0]['id'] if series_list else None
-    video_list = repo.get_videos_with_status(user_email, active_series_id)
+    repo = UserRepository()
+    user = repo.get_user_by_email(user_email)
+    user_name = user['name'] if user and 'name' in user else ''
     repo.close()
-    return render_template('member_videos.html', video_list=video_list, series_list=series_list, active_series_id=active_series_id, user_email=user_email)
+    vrepo = VideoRepository()
+    # 取得系列 id 與名稱
+    series_list = vrepo.get_all_series()
+    active_series_id = series_list[0]['id'] if series_list else None
+    video_list = vrepo.get_videos_with_status(user_email, active_series_id)
+    vrepo.close()
+    return render_template('member_videos.html', video_list=video_list, series_list=series_list, active_series_id=active_series_id, user_email=user_email, user_name=user_name)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -45,9 +49,9 @@ def login():
         password = request.form.get('password')
         hcaptcha_token = request.form.get('h-captcha-response')
         if not hcaptcha_token:
-            flash('請完成驗證碼', 'danger')
+            flash('請完成我是人類驗證', 'danger')
             return render_template('login.html', username=username)
-        # hCaptcha 驗證
+        # hCaptcha 我是人類驗證
         hcaptcha_secret = 'ES_e3cff9ee84a04dc08df9f3543d599641'  # 請換成你的 secret key
         verify_url = 'https://hcaptcha.com/siteverify'
         data = {
@@ -59,12 +63,12 @@ def login():
             resp = requests.post(verify_url, data=data, timeout=5)
             result = resp.json()
             if not result.get('success'):
-                flash('驗證碼失敗，請重試', 'danger')
+                flash('我是人類驗證失敗，請重試', 'danger')
                 return render_template('login.html', username=username)
         except Exception:
-            flash('驗證服務異常，請稍後再試', 'danger')
+            flash('我是人類驗證服務異常，請稍後再試', 'danger')
             return render_template('login.html', username=username)
-        # 使用者資料庫驗證
+        # 使用者資料庫我是人類驗證
         repo = UserRepository()
         user = repo.get_user_by_email(username)
         if user and user['password'] == hashlib.sha256(password.encode()).hexdigest():
