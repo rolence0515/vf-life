@@ -2,16 +2,20 @@ import hashlib
 
 users = [
     {
-        "email": "1131240758@qq.com",
-        "password": "7984f8c230cdf43c405c68908b1eca5879f3b6dd7b78cbd642e275b448a98fc5"
+        "email": "v29@gm.cjjh.tc.edu.tw",
+        "password": "8b916383258b58c4266d645e3eb3a1f4f7a7f86e69abec27a3ccceee775b4ffb"
     },
     {
-        "email": "huachin6@gmail.com",
-        "password": "3c1fe5dde30a83604c286be2ab6c6e0fe210b34b0381bee5d3fc1c718b8fac8a"
+        "email": "jackylam45@gmail.com",
+        "password": "dfeef530bc911649ad87e7a3a372a0ee8d6be5221469e57ae0c19a25959b77bb"
     },
     {
-        "email": "582474972@qq.com",
-        "password": "9a21c1892b5314f3b65c5f3f33ce58af5116ee1ed9be166494aed58d3d8666fa"
+        "email": "a0980855967@yahoo.com.tw",
+        "password": "c95cd1a5cf39b3831b89f24f517eb81f7d6a965fd149e65f92579064024c19c0"
+    },
+    {
+        "email": "0980855967@yahoo.com.tw",
+        "password": "c95cd1a5cf39b3831b89f24f517eb81f7d6a965fd149e65f92579064024c19c0"
     }
 ]
 
