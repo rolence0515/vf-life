@@ -40,7 +40,12 @@
                   </div>
                   <div class="mb-4">
                     <label for="exampleInputPassword1" class="form-label">密碼</label>
-                    <input type="password" class="form-control" id="exampleInputPassword1" name="password">
+                    <div class="input-group">
+                      <input type="password" class="form-control" id="exampleInputPassword1" name="password">
+                      <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                        <iconify-icon icon="mdi:eye" id="passwordIcon"></iconify-icon>
+                      </button>
+                    </div>
                   </div>
                   <div class="d-flex align-items-center justify-content-between mb-4">
                     <div class="form-check">
@@ -69,6 +74,15 @@
   <script src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
   <!-- hCaptcha script -->
   <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
+  <script>
+    document.getElementById('togglePassword').addEventListener('click', function () {
+      const passwordInput = document.getElementById('exampleInputPassword1');
+      const passwordIcon = document.getElementById('passwordIcon');
+      const isPassword = passwordInput.type === 'password';
+      passwordInput.type = isPassword ? 'text' : 'password';
+      passwordIcon.setAttribute('icon', isPassword ? 'mdi:eye-off' : 'mdi:eye');
+    });
+  </script>
 </body>
 
 </html>
