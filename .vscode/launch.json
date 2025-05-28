@@ -10,7 +10,7 @@
             "console": "integratedTerminal",
             "env": { 
                 "PIPENV_PYTHON": "3.11",
-                "DB_HOST": "34.92.42.193",
+                "DB_HOST": "34.96.248.143",
                 "DB_PORT": "5432",
                 "DB_USER": "postgres",
                 "DB_NAME": "postgres",
