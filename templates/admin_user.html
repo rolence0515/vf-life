@@ -4,65 +4,53 @@
 <div class="container-fluid" id="app">
   <div class="card">
     <div class="card-header">
-      <h4 class="mb-2">使用者 (User)</h4>
+      <h4 class="mb-2">使用者列表 (User)</h4>
+      <div class="input-group mb-2" style="max-width: 400px;">
+        <input type="text" class="form-control" placeholder="搜尋 Email 或姓名" v-model="searchQuery" @keyup.enter="searchUsers">
+        <button class="btn btn-outline-secondary" @click="searchUsers">搜尋</button>
+      </div>
     </div>
     <div class="card-body">
-      <div class="d-flex justify-content-between mb-3">
-        <button class="btn btn-success" @click="resetForm" data-bs-toggle="modal" data-bs-target="#userModal">
-          新增使用者
-        </button>
-      </div>
       <table class="table table-hover">
         <thead>
           <tr>
             <th>#</th>
             <th>Email</th>
+            <th>姓名</th>
             <th>建立日期</th>
             <th>修改日期</th>
-            <th>操作</th>
+            <th>功能</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="user in userList" :key="user.id">
             <td>[[ user.id ]]</td>
             <td>[[ user.email ]]</td>
+            <td>[[ user.name ]]</td>
             <td>[[ user.created_at ]]</td>
             <td>[[ user.updated_at ]]</td>
             <td>
-              <button class="btn btn-sm btn-primary" @click="editItem(user)" data-bs-toggle="modal" data-bs-target="#userModal">編輯</button>
-              <button class="btn btn-sm btn-danger" @click="deleteItem(user.id)">刪除</button>
+              <button class="btn btn-sm btn-warning" @click="resetPassword(user)">設回預設密碼</button>
             </td>
           </tr>
         </tbody>
       </table>
 
-      <div class="modal fade" id="userModal" tabindex="-1" aria-labelledby="userModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="userModalLabel">[[ formTitle ]]</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-              <form @submit.prevent="submitForm">
-                <div class="mb-3">
-                  <label for="email" class="form-label">Email</label>
-                  <input type="email" class="form-control" id="email" v-model="formData.email" required>
-                </div>
-                <div class="mb-3">
-                  <label for="created_at" class="form-label">建立日期</label>
-                  <input type="date" class="form-control" id="created_at" v-model="formData.created_at" required>
-                </div>
-                <div class="mb-3">
-                  <label for="updated_at" class="form-label">修改日期</label>
-                  <input type="date" class="form-control" id="updated_at" v-model="formData.updated_at" required>
-                </div>
-                <button type="submit" class="btn btn-primary">儲存</button>
-                <button type="button" class="btn btn-secondary" @click="resetForm" data-bs-dismiss="modal">取消</button>
-              </form>
-            </div>
-          </div>
-        </div>
+      <div class="d-flex justify-content-between align-items-center mt-3">
+        <div>顯示 [[ (currentPage - 1) * usersPerPage + 1 ]] - [[ Math.min(currentPage * usersPerPage, totalUsers) ]] 共 [[ totalUsers ]] 筆</div>
+        <nav>
+          <ul class="pagination">
+            <li class="page-item" :class="{ disabled: currentPage === 1 }">
+              <a class="page-link" href="#" @click.prevent="changePage(currentPage - 1)">上一頁</a>
+            </li>
+            <li class="page-item" v-for="page in Math.ceil(totalUsers / usersPerPage)" :key="page" :class="{ active: currentPage === page }">
+              <a class="page-link" href="#" @click.prevent="changePage(page)">[[ page ]]</a>
+            </li>
+            <li class="page-item" :class="{ disabled: currentPage === Math.ceil(totalUsers / usersPerPage) }">
+              <a class="page-link" href="#" @click.prevent="changePage(currentPage + 1)">下一頁</a>
+            </li>
+          </ul>
+        </nav>
       </div>
     </div>
   </div>
@@ -79,31 +67,47 @@
     el: '#app',
     delimiters: ['[[', ']]'],
     data: {
-      userList: [
-        { id: 1, email: 'user1@example.com', created_at: '2025-01-01', updated_at: '2025-01-02' },
-        { id: 2, email: 'user2@example.com', created_at: '2025-02-01', updated_at: '2025-02-02' },
-        { id: 3, email: 'user3@example.com', created_at: '2025-03-01', updated_at: '2025-03-02' }
-      ],
+      userList: [],
+      currentPage: 1,
+      totalUsers: 0,
+      usersPerPage: 100,
       formData: {},
-      formTitle: ''
+      formTitle: '',
+      searchQuery: ''
+    },
+    mounted() {
+      this.fetchUsers();
     },
     methods: {
-      editItem(user) {
-        this.formData = { ...user };
-        this.formTitle = '編輯使用者';
+      fetchUsers() {
+        const offset = (this.currentPage - 1) * this.usersPerPage;
+        fetch(`/admin/api/users?q=${encodeURIComponent(this.searchQuery)}&offset=${offset}&limit=${this.usersPerPage}`)
+          .then(res => res.json())
+          .then(data => {
+            this.userList = data.users;
+            this.totalUsers = data.total;
+          });
       },
-      deleteItem(id) {
-        this.userList = this.userList.filter(user => user.id !== id);
+      searchUsers() {
+        this.fetchUsers();
       },
-      submitForm() {
-        if (this.formData.id) {
-          const index = this.userList.findIndex(user => user.id === this.formData.id);
-          if (index !== -1) this.userList.splice(index, 1, this.formData);
-        } else {
-          this.formData.id = Date.now();
-          this.userList.push(this.formData);
+      resetPassword(user) {
+        if (confirm(`確定要將 ${user.email} 密碼設為預設值？`)) {
+          fetch(`/admin/api/users/${user.id}/reset_password`, {method: 'POST'})
+            .then(res => res.json())
+            .then(data => {
+              const alertDiv = document.createElement('div');
+              alertDiv.className = 'alert alert-success alert-dismissible fade show';
+              alertDiv.role = 'alert';
+              alertDiv.innerHTML = `密碼已重設為：<strong>${data.default_pw}</strong>` +
+                '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>';
+              document.querySelector('.card-body').prepend(alertDiv);
+            });
         }
-        this.resetForm();
+      },
+      changePage(page) {
+        this.currentPage = page;
+        this.fetchUsers();
       },
       resetForm() {
         this.formData = {};

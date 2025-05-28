@@ -157,6 +157,12 @@
                         <i class="ti ti-key fs-6"></i>
                         <p class="mb-0 fs-3">修改密碼</p>
                       </a>
+                      {% if is_admin %}
+                      <a href="/admin" class="d-flex align-items-center gap-2 dropdown-item">
+                        <i class="ti ti-settings fs-6"></i>
+                        <p class="mb-0 fs-3">管理後台</p>
+                      </a>
+                      {% endif %}
                       <a href="/logout" class="btn btn-outline-primary mx-3 mt-2 d-block">登出</a>
                     </div>
                   </div>

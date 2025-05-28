@@ -30,9 +30,12 @@ def home():
 @login_required
 def member_videos():
     user_email = session.get('user_email')
+    user_id = session.get('user_id')
     repo = UserRepository()
     user = repo.get_user_by_email(user_email)
     user_name = user['name'] if user and 'name' in user else ''
+    # 以 user_id 查詢 admin 權限
+    is_admin = repo.is_admin_user(user_id) if hasattr(repo, 'is_admin_user') else False
     repo.close()
     vrepo = VideoRepository()
     # 取得系列 id 與名稱
@@ -40,7 +43,7 @@ def member_videos():
     active_series_id = series_list[0]['id'] if series_list else None
     video_list = vrepo.get_videos_with_status(user_email, active_series_id)
     vrepo.close()
-    return render_template('member_videos.html', video_list=video_list, series_list=series_list, active_series_id=active_series_id, user_email=user_email, user_name=user_name)
+    return render_template('member_videos.html', video_list=video_list, series_list=series_list, active_series_id=active_series_id, user_email=user_email, user_name=user_name, is_admin=is_admin)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
