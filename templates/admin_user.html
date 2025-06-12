@@ -26,11 +26,19 @@
           <tr v-for="user in userList" :key="user.id">
             <td>[[ user.id ]]</td>
             <td>[[ user.email ]]</td>
-            <td>[[ user.name ]]</td>
+            <td>
+              [[ user.name ]]
+              <div v-if="user.is_admin" style="margin-top: 2px;">
+                <span class="badge bg-success" style="font-size: 0.85em;">管理員</span>
+              </div>
+            </td>
             <td>[[ user.created_at ]]</td>
             <td>[[ user.updated_at ]]</td>
             <td>
               <button class="btn btn-sm btn-warning" @click="resetPassword(user)">設回預設密碼</button>
+              <button class="btn btn-sm btn-secondary ms-2" @click="toggleAdmin(user)">
+                [[ user.is_admin ? '取消管理員' : '設為管理員' ]]
+              </button>
             </td>
           </tr>
         </tbody>
@@ -86,6 +94,31 @@
           .then(data => {
             this.userList = data.users;
             this.totalUsers = data.total;
+          });
+      },
+
+      toggleAdmin(user) {
+        const action = user.is_admin ? 'remove' : 'add';
+        const confirmMsg = user.is_admin ? `確定要取消 ${user.email} 的管理員身份？` : `確定要將 ${user.email} 設為管理員？`;
+        if (!confirm(confirmMsg)) return;
+        fetch(`/admin/api/users/${user.id}/toggle_admin`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action })
+        })
+          .then(res => res.json())
+          .then(data => {
+            if (data.success) {
+              user.is_admin = !user.is_admin;
+              const alertDiv = document.createElement('div');
+              alertDiv.className = 'alert alert-success alert-dismissible fade show';
+              alertDiv.role = 'alert';
+              alertDiv.innerHTML = data.msg +
+                '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>';
+              document.querySelector('.card-body').prepend(alertDiv);
+            } else {
+              alert(data.msg || '操作失敗');
+            }
           });
       },
       searchUsers() {

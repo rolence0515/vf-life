@@ -11,6 +11,20 @@ class UserRepository:
             password=config.DB_PASSWORD,
             dbname=config.DB_NAME
         )
+    def get_admin_count(self):
+        with self.conn.cursor() as cur:
+            cur.execute('SELECT COUNT(*) FROM admin_users')
+            return cur.fetchone()[0]
+
+    def add_admin(self, user_id):
+        with self.conn.cursor() as cur:
+            cur.execute('INSERT INTO admin_users (user_id) VALUES (%s) ON CONFLICT DO NOTHING', (user_id,))
+            self.conn.commit()
+
+    def remove_admin(self, user_id):
+        with self.conn.cursor() as cur:
+            cur.execute('DELETE FROM admin_users WHERE user_id = %s', (user_id,))
+            self.conn.commit()
 
     def get_user_by_id(self, user_id):
         with self.conn.cursor(cursor_factory=RealDictCursor) as cur:
@@ -45,10 +59,12 @@ class UserRepository:
         with self.conn.cursor() as cur:
             if q:
                 cur.execute('''
-                    SELECT id, email, name, created_at, updated_at
-                    FROM "user"
-                    WHERE LOWER(email) LIKE %s OR LOWER(name) LIKE %s
-                    ORDER BY id
+                    SELECT u.id, u.email, u.name, u.created_at, u.updated_at,
+                        CASE WHEN a.user_id IS NOT NULL THEN TRUE ELSE FALSE END AS is_admin
+                    FROM "user" u
+                    LEFT JOIN admin_users a ON u.id = a.user_id
+                    WHERE LOWER(u.email) LIKE %s OR LOWER(u.name) LIKE %s
+                    ORDER BY u.id
                     LIMIT %s OFFSET %s
                 ''', (f'%{q}%', f'%{q}%', limit, offset))
                 users = [
@@ -57,22 +73,26 @@ class UserRepository:
                         'email': row[1],
                         'name': row[2],
                         'created_at': row[3].strftime('%Y-%m-%d') if row[3] else '',
-                        'updated_at': row[4].strftime('%Y-%m-%d') if row[4] else ''
+                        'updated_at': row[4].strftime('%Y-%m-%d') if row[4] else '',
+                        'is_admin': row[5]
                     }
                     for row in cur.fetchall()
                 ]
 
                 cur.execute('''
                     SELECT COUNT(*)
-                    FROM "user"
-                    WHERE LOWER(email) LIKE %s OR LOWER(name) LIKE %s
+                    FROM "user" u
+                    LEFT JOIN admin_users a ON u.id = a.user_id
+                    WHERE LOWER(u.email) LIKE %s OR LOWER(u.name) LIKE %s
                 ''', (f'%{q}%', f'%{q}%'))
                 total = cur.fetchone()[0]
             else:
                 cur.execute('''
-                    SELECT id, email, name, created_at, updated_at
-                    FROM "user"
-                    ORDER BY id
+                    SELECT u.id, u.email, u.name, u.created_at, u.updated_at,
+                        CASE WHEN a.user_id IS NOT NULL THEN TRUE ELSE FALSE END AS is_admin
+                    FROM "user" u
+                    LEFT JOIN admin_users a ON u.id = a.user_id
+                    ORDER BY u.id
                     LIMIT %s OFFSET %s
                 ''', (limit, offset))
                 users = [
@@ -81,7 +101,8 @@ class UserRepository:
                         'email': row[1],
                         'name': row[2],
                         'created_at': row[3].strftime('%Y-%m-%d') if row[3] else '',
-                        'updated_at': row[4].strftime('%Y-%m-%d') if row[4] else ''
+                        'updated_at': row[4].strftime('%Y-%m-%d') if row[4] else '',
+                        'is_admin': row[5]
                     }
                     for row in cur.fetchall()
                 ]
