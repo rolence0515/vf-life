@@ -23,7 +23,120 @@ def admin_user():
 def admin_videos():
     return render_template('admin_videos.html')
 
+# 批量開帳號頁面
+@admin_bp.route('/bulk_create_accounts')
+@admin_user_required
+def admin_bulk_create_accounts():
+    return render_template('admin_bulk_create_accounts.html')
+
 # ===================================== API 路由 =====================================
+
+# 批量開帳號 - 檔案上傳與批次處理
+import csv
+import io
+import tempfile
+from flask import send_file
+import hashlib
+import datetime
+
+@admin_bp.route('/bulk_create_accounts', methods=['POST'])
+@admin_user_required
+def api_bulk_create_accounts():
+    file = request.files.get('csvFile')
+    if not file or not file.filename.endswith('.csv'):
+        return jsonify({'error': '請上傳 CSV 檔案'}), 400
+
+    file.stream.seek(0)
+    csv_text = file.stream.read().decode('utf-8-sig')
+    reader = csv.DictReader(io.StringIO(csv_text))
+    result_rows = []
+    output = io.StringIO()
+    fieldnames = ['name', 'email', 'user_id', 'new_user', 'default_pw', 'videos_count']
+    writer = csv.DictWriter(output, fieldnames=fieldnames)
+    writer.writeheader()
+
+    from lib.user_repository import UserRepository
+    from lib.video_repository import VideoRepository
+    user_repo = UserRepository()
+    video_repo = VideoRepository()
+
+    for row in reader:
+        name = row.get('name', '').strip()
+        email = row.get('email', '').strip().lower()
+        serial1 = row.get('serial1', '0').strip()
+        serial2 = row.get('serial2', '0').strip()
+        new_user = 0
+        default_pw = ''
+        user = user_repo.get_user_by_email(email)
+        if not user:
+            # 建立新 user
+            pw_raw = hashlib.sha256(email.encode('utf-8')).hexdigest()[:6]
+            pw_hash = hashlib.sha256(pw_raw.encode()).hexdigest()
+            user_id = user_repo.create_user(name, email, pw_hash)
+            new_user = 1
+            default_pw = pw_raw
+        else:
+            user_id = user['id']
+
+        videos_count = 0
+        # 處理 serial1/serial2 欄位
+        for series_id, serial_flag in [(1, serial1), (2, serial2)]:
+            if serial_flag == '1':
+                # 查詢該系列所有影片
+                videos = video_repo.get_videos_by_series(series_id)
+                for v in videos:
+                    added = user_repo.add_user_video(user_id, v['id'])
+                    if added:
+                        videos_count += 1
+            elif serial_flag == '0':
+                # 移除該系列所有影片權限
+                videos = video_repo.get_videos_by_series(series_id)
+                for v in videos:
+                    user_repo.remove_user_video(user_id, v['id'])
+
+        writer.writerow({
+            'name': name,
+            'email': email,
+            'user_id': user_id,
+            'new_user': new_user,
+            'default_pw': default_pw,
+            'videos_count': videos_count
+        })
+
+    user_repo.close()
+    video_repo.close()
+
+    # 產生結果 CSV 檔案
+    output.seek(0)
+    timestamp = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
+    result_filename = f'bulk_create_result_{timestamp}.csv'
+    result_path = tempfile.mktemp(suffix='.csv')
+    with open(result_path, 'w', encoding='utf-8-sig') as f:
+        f.write(output.getvalue())
+
+    # 回傳下載連結（不回傳表格）
+    from flask import url_for
+    return jsonify({
+        'result_csv_url': url_for('admin.download_bulk_create_result', filename=result_filename)
+    })
+
+# 提供結果 CSV 檔案下載
+@admin_bp.route('/bulk_create_result/<filename>')
+@admin_user_required
+def download_bulk_create_result(filename):
+    import os
+    import glob
+    # 只允許下載剛剛產生的檔案
+    temp_dir = tempfile.gettempdir()
+    file_path = os.path.join(temp_dir, filename)
+    if not os.path.exists(file_path):
+        # fallback: 找最新的 bulk_create_result_*.csv
+        files = sorted(glob.glob(os.path.join(temp_dir, 'bulk_create_result_*.csv')), reverse=True)
+        if files:
+            file_path = files[0]
+        else:
+            return 'File not found', 404
+    return send_file(file_path, as_attachment=True, download_name=filename)
 # 新增/移除管理員 API
 @admin_bp.route('/api/users/<int:user_id>/toggle_admin', methods=['POST'])
 @admin_user_required
