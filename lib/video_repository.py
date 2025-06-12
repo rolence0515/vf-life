@@ -1,3 +1,4 @@
+
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from config import config
@@ -13,6 +14,65 @@ class VideoRepository:
             password=config.DB_PASSWORD,
             dbname=config.DB_NAME
         )
+
+    def get_all_videos(self):
+        with self.conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute('''
+                SELECT v.id, v.series_id, s.name AS series_name, v.url, v.title,
+                       v.created_at, v.updated_at, v.available_at, v.expired_at
+                FROM videos v
+                LEFT JOIN series s ON v.series_id = s.id
+                ORDER BY v.id ASC
+            ''')
+            videos = cur.fetchall()
+            # 格式化日期
+            for v in videos:
+                for k in ['created_at', 'updated_at', 'available_at', 'expired_at']:
+                    if v.get(k):
+                        v[k] = v[k].strftime('%Y-%m-%d')
+            return videos
+
+    def create_video(self, data):
+        with self.conn.cursor() as cur:
+            cur.execute('''
+                INSERT INTO videos (series_id, url, title, type, created_at, updated_at, available_at, expired_at)
+                VALUES (%s, %s, %s, %s, CURRENT_DATE, CURRENT_DATE, %s, %s)
+                RETURNING id
+            ''', (
+                data.get('series_id'),
+                data.get('url'),
+                data.get('title'),
+                'vimeo',  # type 欄位寫死 vimeo
+                data.get('available_at'),
+                data.get('expired_at')
+            ))
+            new_id = cur.fetchone()[0]
+            self.conn.commit()
+            return new_id
+
+    def update_video(self, video_id, data):
+        with self.conn.cursor() as cur:
+            cur.execute('''
+                UPDATE videos
+                SET series_id=%s, url=%s, title=%s, updated_at=CURRENT_DATE,
+                    available_at=%s, expired_at=%s
+                WHERE id=%s
+            ''', (
+                data.get('series_id'),
+                data.get('url'),
+                data.get('title'),
+                data.get('available_at'),
+                data.get('expired_at'),
+                video_id
+            ))
+            self.conn.commit()
+            return cur.rowcount > 0
+
+    def delete_video(self, video_id):
+        with self.conn.cursor() as cur:
+            cur.execute('DELETE FROM videos WHERE id=%s', (video_id,))
+            self.conn.commit()
+            return cur.rowcount > 0
 
     def get_videos_with_status(self, user_email, series_id=None):
         with self.conn.cursor(cursor_factory=RealDictCursor) as cur:

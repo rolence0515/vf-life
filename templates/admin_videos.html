@@ -16,20 +16,18 @@
         <thead>
           <tr>
             <th>#</th>
+            <th>系列名稱</th>
             <th>標題</th>
-            <th>系列ID</th>
-            <th>來源</th>
-            <th>建立日期</th>
+            <th>上架日 ~ 下架日</th>
             <th>操作</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="video in videosList" :key="video.id">
             <td>[[ video.id ]]</td>
+            <td>[[ video.series_name ]]</td>
             <td>[[ video.title ]]</td>
-            <td>[[ video.series_id ]]</td>
-            <td>[[ video.type ]]</td>
-            <td>[[ video.created_at ]]</td>
+            <td>[[ video.available_at ]] ~ [[ video.expired_at ]]</td>
             <td>
               <button class="btn btn-sm btn-primary" @click="editItem(video)" data-bs-toggle="modal" data-bs-target="#videoModal">編輯</button>
               <button class="btn btn-sm btn-danger" @click="deleteItem(video.id)">刪除</button>
@@ -48,7 +46,7 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="videoModalLabel">新增影片</h5>
+        <h5 class="modal-title" id="videoModalLabel">[[ formTitle ]]</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
@@ -58,17 +56,31 @@
             <input type="text" class="form-control" v-model="formData.title" required>
           </div>
           <div class="mb-3">
-            <label class="form-label">系列ID</label>
-            <input type="text" class="form-control" v-model="formData.series_id" required>
-          </div>
-          <div class="mb-3">
-            <label class="form-label">來源</label>
-            <select class="form-select" v-model="formData.type" required>
-              <option value="">選擇來源</option>
-              <option value="vimeo">Vimeo</option>
-              <option value="youtube">YouTube</option>
+            <label class="form-label">系列</label>
+            <select class="form-select" v-model="formData.series_id" required>
+              <option value="">請選擇系列</option>
+              <option v-for="s in seriesList" :value="s.id">[[ s.name ]]</option>
             </select>
           </div>
+          <!-- 來源欄位移除 -->
+          <div class="mb-3">
+            <label class="form-label">影片網址</label>
+            <input type="text" class="form-control" v-model="formData.url" required>
+            <small class="form-text text-danger">注意！vimeo請使用嵌入網址，即 https://player.vimeo.com/xxx 開頭的網址</small>
+          </div>
+          <!-- 說明欄位移除 -->
+          <div class="mb-3">
+            <label class="form-label">上架日</label>
+            <input type="date" class="form-control" v-model="formData.available_at" required>
+            <small class="form-text text-muted">決定觀眾可回放觀看的日期段</small>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">下架日</label>
+            <input type="date" class="form-control" v-model="formData.expired_at" required>
+            <small class="form-text text-muted">決定觀眾可回放觀看的日期段</small>
+          </div>
+          <!-- 購買連結與購買日欄位移除 -->
+          <!-- 建立日期與修改日期欄位移除，交由後端自動處理 -->
           <button type="submit" class="btn btn-primary">儲存</button>
           <button type="button" class="btn btn-secondary" @click="resetForm" data-bs-dismiss="modal">取消</button>
         </form>
@@ -85,37 +97,168 @@
     el: '#app',
     delimiters: ['[[', ']]'],
     data: {
-      videosList: [
-        { id: 1, title: '影片1', series_id: '101', type: 'youtube', created_at: '2025-01-01' },
-        { id: 2, title: '影片2', series_id: '102', type: 'vimeo', created_at: '2025-02-01' },
-        { id: 3, title: '影片3', series_id: '103', type: 'youtube', created_at: '2025-03-01' }
-      ],
+      videosList: [],
+      seriesList: [],
       formData: {},
+      todayStr: new Date().toISOString().slice(0, 10),
       formTitle: ''
     },
+    mounted() {
+      this.fetchVideos();
+      this.fetchSeries();
+    },
     methods: {
+      fetchVideos() {
+        fetch('/admin/api/videos')
+          .then(res => res.json())
+          .then(data => {
+            if (data.success) {
+              this.videosList = data.videos;
+            }
+          });
+      },
+      fetchSeries() {
+        fetch('/admin/api/series')
+          .then(res => res.json())
+          .then(data => {
+            if (data.success) {
+              this.seriesList = data.series;
+            }
+          });
+      },
       editItem(video) {
         this.formData = { ...video };
         this.formTitle = '編輯影片';
       },
+      resetForm() {
+        this.formData = {};
+        this.formTitle = '新增影片';
+      },
       deleteItem(id) {
-        this.videosList = this.videosList.filter(video => video.id !== id);
+        if (!confirm('確定要刪除這部影片嗎？')) return;
+        fetch(`/admin/api/videos/${id}`, { method: 'DELETE' })
+          .then(res => res.json())
+          .then(data => {
+            if (data.success) {
+              this.fetchVideos();
+              this.showAlert(data.msg || '刪除成功', true, false);
+            } else {
+              this.showAlert(data.msg || '刪除失敗', false, false);
+            }
+          });
       },
       submitForm() {
-        if (this.formData.id) {
-          const index = this.videosList.findIndex(video => video.id === this.formData.id);
-          if (index !== -1) this.videosList.splice(index, 1, this.formData);
-        } else {
-          this.formData.id = Date.now();
-          this.videosList.push(this.formData);
+        // 驗證下架日 >= 上架日
+        const start = this.formData.available_at;
+        const end = this.formData.expired_at;
+        const today = new Date().toISOString().slice(0, 10);
+        if (start && end && end < start) {
+          this.showAlert('下架日必須大於等於上架日', false);
+          return;
         }
-        this.resetForm();
+        if ((start && start === today) || (end && end === today)) {
+          this.showAlert('上架日與下架日不能等於今日', false);
+          return;
+        }
+        // 驗證影片網址前綴
+        if (!this.formData.url || !this.formData.url.startsWith('https://player.vimeo.com')) {
+          this.showAlert('影片網址必須以 https://player.vimeo.com 開頭', false);
+          return;
+        }
+        const method = this.formData.id ? 'POST' : 'POST';
+        fetch('/admin/api/videos', {
+          method,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(this.formData)
+        })
+          .then(res => res.json())
+          .then(data => {
+            if (data.success) {
+              this.fetchVideos();
+              this.resetForm();
+              // 關閉 modal
+              document.querySelector('#videoModal .btn-close').click();
+              // 等待 modal 關閉後顯示主頁面 alert
+              setTimeout(() => {
+                this.showAlert(data.msg || '儲存成功', true, false);
+              }, 350);
+            } else {
+              // 若 modal 還在，顯示在 modal，否則顯示在主頁面
+              const modal = document.querySelector('#videoModal.show');
+              this.showAlert(data.msg || '儲存失敗', false, !!modal);
+            }
+          });
+      },
+
+      showAlert(msg, isSuccess = true, inModal = true) {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${isSuccess ? 'success' : 'danger'} alert-dismissible fade show`;
+        alertDiv.role = 'alert';
+        alertDiv.innerHTML = msg +
+          '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>';
+        if (inModal) {
+          const modalBody = document.querySelector('#videoModal .modal-body');
+          if (modalBody) {
+            modalBody.prepend(alertDiv);
+            // 綁定 modal 關閉時自動移除 alert
+            const modalEl = document.getElementById('videoModal');
+            if (modalEl) {
+              const removeModalAlerts = () => {
+                modalBody.querySelectorAll('.alert').forEach(a => a.remove());
+              };
+              // 只加一次事件監聽
+              if (!modalEl._alertCleanupBound) {
+                modalEl.addEventListener('hidden.bs.modal', removeModalAlerts);
+                modalEl._alertCleanupBound = true;
+              }
+            }
+            return;
+          }
+        }
+        // fallback: 插入到主頁面表格上方
+        const cardBody = document.querySelector('.card-body');
+        if (cardBody) {
+          cardBody.prepend(alertDiv);
+        }
+      },
+
+      // 新增: modal 關閉時自動移除 modal 內的 alert
+      removeModalAlerts() {
+        const modalBody = document.querySelector('#videoModal .modal-body');
+        if (modalBody) {
+          const alerts = modalBody.querySelectorAll('.alert');
+          alerts.forEach(alert => alert.remove());
+        }
       },
       resetForm() {
         this.formData = {};
         this.formTitle = '新增影片';
       }
+    },
+    watch: {
+      formData: {
+        handler(val) {
+          if (val && val.id) {
+            this.formTitle = '編輯影片';
+          } else {
+            this.formTitle = '新增影片';
+          }
+        },
+        deep: true
+      }
     }
+  ,
+  mounted() {
+    this.fetchVideos();
+    this.fetchSeries();
+    // 監聽 modal 關閉事件，自動移除 modal 內的 alert
+    const modalEl = document.getElementById('videoModal');
+    if (modalEl) {
+      modalEl.addEventListener('hidden.bs.modal', () => {
+        this.removeModalAlerts();
+      });
+    }
+  }
   });
 </script>
 {% endblock %}
