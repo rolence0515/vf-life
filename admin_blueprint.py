@@ -13,6 +13,7 @@ from psycopg2 import IntegrityError
 from lib.user_repository import UserRepository
 from lib.video_repository import VideoRepository
 from lib.batch_account_log_repository import BatchAccountLogRepository
+from lib.series_repository import SeriesRepository
 
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
 
@@ -43,6 +44,12 @@ def admin_batch_account_log():
     logs = repo.get_recent_logs(20)
     repo.close()
     return render_template('admin_batch_account_log.html', logs=logs)
+
+# 影片系列列表頁面
+@admin_bp.route('/series')
+@admin_user_required
+def admin_series():
+    return render_template('admin_series.html')
 
 # ===================================== API 路由 =====================================
 # 批量開帳號 - 檔案上傳與批次處理
@@ -256,9 +263,10 @@ def api_get_users():
     q = request.args.get('q', '').strip().lower()
     offset = int(request.args.get('offset', 0))
     limit = int(request.args.get('limit', 100))
+    admin_only = request.args.get('admin_only', '0') == '1'
     repo = UserRepository()
     try:
-        users, total = repo.get_users_with_pagination(q, offset, limit)
+        users, total = repo.get_users_with_pagination(q, offset, limit, admin_only=admin_only)
         return jsonify({'users': users, 'total': total})
     finally:
         repo.close()
@@ -340,21 +348,64 @@ def api_delete_video(video_id):
     finally:
         repo.close()
 
-# 取得系列列表 API
 @admin_bp.route('/api/series', methods=['GET'])
 @admin_user_required
 def api_get_series():
-    repo = VideoRepository()
+    repo = SeriesRepository()
     try:
         series = repo.get_all_series()
         return jsonify({'success': True, 'series': series})
     finally:
         repo.close()
 
-# @admin_bp.route('/admin_users')
-# @admin_user_required
-# def admin_admin_users():
-#     return render_template('admin_admin_users.html')
+@admin_bp.route('/api/series', methods=['POST'])
+@admin_user_required
+def api_create_series():
+    data = request.get_json() or {}
+    name = data.get('name', '').strip()
+    description = data.get('description', '').strip()
+    if not name:
+        return jsonify({'success': False, 'msg': '系列名稱不可為空'}), 400
+    repo = SeriesRepository()
+    try:
+        new_id = repo.create_series(name, description)
+        return jsonify({'success': True, 'id': new_id, 'msg': '系列已新增'})
+    finally:
+        repo.close()
+
+@admin_bp.route('/api/series/<int:series_id>', methods=['PUT'])
+@admin_user_required
+def api_update_series(series_id):
+    data = request.get_json() or {}
+    name = data.get('name', '').strip()
+    description = data.get('description', '').strip()
+    if not name:
+        return jsonify({'success': False, 'msg': '系列名稱不可為空'}), 400
+    repo = SeriesRepository()
+    try:
+        updated = repo.update_series(series_id, name, description)
+        return jsonify({'success': updated, 'msg': '系列已更新' if updated else '更新失敗'})
+    finally:
+        repo.close()
+
+
+@admin_bp.route('/api/series/<int:series_id>', methods=['DELETE'])
+@admin_user_required
+def api_delete_series(series_id):
+    # 先檢查該系列下是否有影片
+    vrepo = VideoRepository()
+    try:
+        videos = vrepo.get_videos_by_series(series_id)
+        if videos and len(videos) > 0:
+            return jsonify({'success': False, 'msg': '此系列下仍有影片，請先移除所有影片後再刪除系列'}), 400
+    finally:
+        vrepo.close()
+    repo = SeriesRepository()
+    try:
+        deleted = repo.delete_series(series_id)
+        return jsonify({'success': deleted, 'msg': '系列已刪除' if deleted else '刪除失敗'})
+    finally:
+        repo.close()
 
 @admin_bp.app_errorhandler(404)
 def admin_page_not_found(e):

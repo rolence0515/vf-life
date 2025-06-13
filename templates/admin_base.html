@@ -48,7 +48,7 @@
             <ul id="sidebarnav">
               <li class="nav-small-cap">
                 <i class="ti ti-dots nav-small-cap-icon fs-6"></i>
-                <span class="hide-menu">資料模組</span>
+                <span class="hide-menu">管理功能</span>
               </li>
               <li class="sidebar-item">
                 <a href="{{ url_for('admin.admin_user') }}" class="sidebar-link">
@@ -58,6 +58,11 @@
               <li class="sidebar-item">
                 <a href="{{ url_for('admin.admin_videos') }}" class="sidebar-link">
                   <span>影片列表</span>
+                </a>
+              </li>
+              <li class="sidebar-item">
+                <a href="{{ url_for('admin.admin_series') }}" class="sidebar-link">
+                  <span>影片系列管理</span>
                 </a>
               </li>
               <li class="sidebar-item">
