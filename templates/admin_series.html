@@ -1,13 +1,13 @@
 {% extends "admin_base.html" %}
 
 {% block content %}
-<div class="container-fluid" id="app">
+<div class="container-fluid">
   <div class="row">
     <!-- Removed the right-side form and its container to free up space -->
     <div class="col-lg-12">
       <div class="card">
         <div class="card-header">
-          <h4 class="mb-2">影片系列 (Serail)</h4>
+          <h4 class="mb-2">影片系列管理</h4>
         </div>
         <div class="card-body">
           <div class="d-flex justify-content-between mb-3">
@@ -21,6 +21,7 @@
                 <th>#</th>
                 <th>名稱</th>
                 <th>描述</th>
+                <th>影片數量</th>
                 <th>建立日期</th>
                 <th>操作</th>
               </tr>
@@ -30,6 +31,7 @@
                 <td>[[ series.id ]]</td>
                 <td>[[ series.name ]]</td>
                 <td>[[ series.description ]]</td>
+                <td>[[ series.video_count ]]</td>
                 <td>[[ series.created_at ]]</td>
                 <td>
                   <button class="btn btn-sm btn-primary" @click="editItem(series)" data-bs-toggle="modal" data-bs-target="#seriesModal">編輯</button>
@@ -80,35 +82,133 @@
     el: '#app',
     delimiters: ['[[', ']]'],
     data: {
-      seriesList: [
-        { id: 1, name: '系列1', description: '描述1', created_at: '2025-01-01' },
-        { id: 2, name: '系列2', description: '描述2', created_at: '2025-02-01' },
-        { id: 3, name: '系列3', description: '描述3', created_at: '2025-03-01' }
-      ],
+      seriesList: [],
       formData: {},
-      formTitle: ''
+      formTitle: '',
+      showEdit: false
+    },
+    mounted() {
+      this.fetchSeries();
+      // 監聽 modal 關閉事件，自動移除 modal 內的 alert
+      const modalEl = document.getElementById('seriesModal');
+      if (modalEl) {
+        modalEl.addEventListener('hidden.bs.modal', () => {
+          this.removeModalAlerts();
+        });
+      }
     },
     methods: {
+      fetchSeries() {
+        fetch('/admin/api/series')
+          .then(res => res.json())
+          .then(data => {
+            if (data.success) this.seriesList = data.series;
+          });
+      },
       editItem(series) {
         this.formData = { ...series };
         this.formTitle = '編輯系列';
+        this.showEdit = true;
+        $('#seriesModal').modal('show');
       },
       deleteItem(id) {
-        this.seriesList = this.seriesList.filter(series => series.id !== id);
+        if (!confirm('確定要刪除這個系列嗎？')) return;
+        fetch(`/admin/api/series/${id}`, { method: 'DELETE' })
+          .then(res => res.json())
+          .then(data => {
+            if (data.success) {
+              this.fetchSeries();
+              this.showAlert(data.msg || '刪除成功', true, false);
+            } else {
+              this.showAlert(data.msg || '刪除失敗', false, false);
+            }
+          });
       },
       submitForm() {
+        if (!this.formData.name) return this.showAlert('系列名稱不可為空', false, true);
         if (this.formData.id) {
-          const index = this.seriesList.findIndex(series => series.id === this.formData.id);
-          if (index !== -1) this.seriesList.splice(index, 1, this.formData);
+          // 編輯
+          fetch(`/admin/api/series/${this.formData.id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: this.formData.name, description: this.formData.description })
+          })
+            .then(res => res.json())
+            .then(data => {
+              if (data.success) {
+                this.fetchSeries();
+                this.resetForm();
+                $('#seriesModal').modal('hide');
+                setTimeout(() => {
+                  this.showAlert(data.msg || '更新成功', true, false);
+                }, 350);
+              } else {
+                this.showAlert(data.msg || '更新失敗', false, true);
+              }
+            });
         } else {
-          this.formData.id = Date.now();
-          this.seriesList.push(this.formData);
+          // 新增
+          fetch('/admin/api/series', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: this.formData.name, description: this.formData.description })
+          })
+            .then(res => res.json())
+            .then(data => {
+              if (data.success) {
+                this.fetchSeries();
+                this.resetForm();
+                $('#seriesModal').modal('hide');
+                setTimeout(() => {
+                  this.showAlert(data.msg || '新增成功', true, false);
+                }, 350);
+              } else {
+                this.showAlert(data.msg || '新增失敗', false, true);
+              }
+            });
         }
-        this.resetForm();
+      },
+      showAlert(msg, isSuccess = true, inModal = true) {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${isSuccess ? 'success' : 'danger'} alert-dismissible fade show`;
+        alertDiv.role = 'alert';
+        alertDiv.innerHTML = msg +
+          '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>';
+        if (inModal) {
+          const modalBody = document.querySelector('#seriesModal .modal-body');
+          if (modalBody) {
+            modalBody.prepend(alertDiv);
+            // 綁定 modal 關閉時自動移除 alert
+            const modalEl = document.getElementById('seriesModal');
+            if (modalEl) {
+              const removeModalAlerts = () => {
+                modalBody.querySelectorAll('.alert').forEach(a => a.remove());
+              };
+              if (!modalEl._alertCleanupBound) {
+                modalEl.addEventListener('hidden.bs.modal', removeModalAlerts);
+                modalEl._alertCleanupBound = true;
+              }
+            }
+            return;
+          }
+        }
+        // fallback: 插入到主頁面表格上方
+        const cardBody = document.querySelector('.card-body');
+        if (cardBody) {
+          cardBody.prepend(alertDiv);
+        }
+      },
+      removeModalAlerts() {
+        const modalBody = document.querySelector('#seriesModal .modal-body');
+        if (modalBody) {
+          const alerts = modalBody.querySelectorAll('.alert');
+          alerts.forEach(alert => alert.remove());
+        }
       },
       resetForm() {
         this.formData = {};
         this.formTitle = '新增系列';
+        this.showEdit = false;
       }
     }
   });
