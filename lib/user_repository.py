@@ -11,6 +11,37 @@ class UserRepository:
             password=config.DB_PASSWORD,
             dbname=config.DB_NAME
         )
+
+    def create_user(self, name, email, password):
+        """
+        建立新 user，回傳 user_id
+        """
+        with self.conn.cursor() as cur:
+            cur.execute('INSERT INTO "user" (name, email, password) VALUES (%s, %s, %s) RETURNING id', (name, email, password))
+            user_id = cur.fetchone()[0]
+            self.conn.commit()
+            return user_id
+
+    def add_user_video(self, user_id, video_id):
+        """
+        新增 user_videos 權限，若已存在則不重複寫入。成功新增回傳 True，否則 False
+        """
+        with self.conn.cursor() as cur:
+            cur.execute('SELECT 1 FROM user_videos WHERE user_id=%s AND video_id=%s', (user_id, video_id))
+            if cur.fetchone():
+                return False
+            cur.execute('INSERT INTO user_videos (user_id, video_id) VALUES (%s, %s)', (user_id, video_id))
+            self.conn.commit()
+            return True
+
+    def remove_user_video(self, user_id, video_id):
+        """
+        刪除 user_videos 權限
+        """
+        with self.conn.cursor() as cur:
+            cur.execute('DELETE FROM user_videos WHERE user_id=%s AND video_id=%s', (user_id, video_id))
+            self.conn.commit()
+    
     def get_admin_count(self):
         with self.conn.cursor() as cur:
             cur.execute('SELECT COUNT(*) FROM admin_users')

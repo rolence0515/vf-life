@@ -146,3 +146,39 @@ CREATE TABLE admin_users (
   FOREIGN KEY (user_id) REFERENCES "user"(id)
 );
 ```
+
+---
+
+## 6. batch_account_log 批次開帳號作業記錄表
+
+| 欄位名稱           | 型別        | 說明                                 |
+| ------------------ | ----------- | ------------------------------------ |
+| id                 | SERIAL      | 唯一ID                               |
+| created_at         | TIMESTAMP   | 記錄日期                             |
+| operator_name      | VARCHAR(64) | 操作者姓名                           |
+| operator_email     | VARCHAR(128)| 操作者Email                          |
+| backup_checked     | BOOLEAN     | 是否勾選「已通知備份」                |
+| status             | VARCHAR(16) | 作業狀態（success/fail）             |
+| fail_reason        | TEXT        | 失敗原因（如有）                     |
+| total_count        | INTEGER     | 處理總筆數（CSV資料列數）            |
+| new_user_count     | INTEGER     | 新建帳號數                           |
+| exist_user_count   | INTEGER     | 已存在帳號數                         |
+| total_videos_count | INTEGER     | 總開通影片數                         |
+| result_filename    | VARCHAR(255)| 結果檔案名稱                         |
+
+```sql
+CREATE TABLE batch_account_log (
+  id SERIAL PRIMARY KEY, -- 唯一ID
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, -- 記錄日期
+  operator_name VARCHAR(64), -- 操作者姓名
+  operator_email VARCHAR(128), -- 操作者Email
+  backup_checked BOOLEAN, -- 是否勾選「已通知備份」
+  status VARCHAR(16), -- 作業狀態（success/fail）
+  fail_reason TEXT, -- 失敗原因（如有）
+  total_count INTEGER, -- 處理總筆數
+  new_user_count INTEGER, -- 新建帳號數
+  exist_user_count INTEGER, -- 已存在帳號數
+  total_videos_count INTEGER, -- 總開通影片數
+  result_filename VARCHAR(255) -- 結果檔案名稱
+);
+```

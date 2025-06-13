@@ -1,43 +1,86 @@
 {% extends 'admin_base.html' %}
 {% block content %}
-<div class="container-fluid " >
-  
+<div class="container-fluid">
   <div class="card">
     <div class="card-body">
       <h3 class="mb-4">批量開帳號</h3>
       <div class="alert alert-info mb-4">
-    <strong>上傳檔案格式說明：</strong><br>
-    請上傳含有下列欄位的 CSV 檔案：<br>
-    <code>name,email,serial1,serial2</code><br>
-    <div class="mt-2">
-      <strong>範例：</strong>
-      <table class="table table-bordered table-sm mt-2 mb-0" style="max-width:500px;">
-        <thead>
-          <tr><th>name</th><th>email</th><th>serial1</th><th>serial2</th></tr>
-        </thead>
-        <tbody>
-          <tr><td>王小明</td><td>user1@example.com</td><td>1</td><td>0</td></tr>
-          <tr><td>李小華</td><td>user2@example.com</td><td>1</td><td>1</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <ul class="mb-0 mt-2">
-      <li><code>name</code>：會員姓名</li>
-      <li><code>email</code>：會員帳號（Email）</li>
-      <li><code>serial1</code>：購買上半場（1=有，0=無）</li>
-      <li><code>serial2</code>：購買下半場（1=有，0=無）</li>
-    </ul>
-  </div>
-      <form id="bulk-upload-form" enctype="multipart/form-data">
-        <div class="mb-3">
-          <label for="csvFile" class="form-label">請選擇 CSV 檔案</label>
-          <input class="form-control" type="file" id="csvFile" name="csvFile" accept=".csv" required>
+        <strong>上傳檔案格式說明：</strong><br>
+        請上傳含有下列欄位的 CSV 檔案：<br>
+        <code>name,email,serial1,serial2</code><br>
+        <div class="mt-2">
+          <strong>範例：</strong>
+          <table class="table table-bordered table-sm mt-2 mb-0" style="max-width:500px;">
+            <thead>
+              <tr>
+                <th>name</th>
+                <th>email</th>
+                <th>serial1</th>
+                <th>serial2</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>王小明</td>
+                <td>user1@example.com</td>
+                <td>1</td>
+                <td>0</td>
+              </tr>
+              <tr>
+                <td>李小華</td>
+                <td>user2@example.com</td>
+                <td>1</td>
+                <td>1</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
-        <button type="submit" class="btn btn-primary">上傳並執行</button>
-      </form>
-      <div id="result-section" class="mt-4" style="display:none;">
+        <ul class="mb-0 mt-2">
+          <li><code>name</code>：會員姓名</li>
+          <li><code>email</code>：會員帳號（Email）</li>
+          <li><code>serial1</code>：購買上半場（1=有，0=無）</li>
+          <li><code>serial2</code>：購買下半場（1=有，0=無）</li>
+        </ul>
+      </div>
+      <!-- Stepper -->
+      <div class="mb-4">
+        <ul class="stepper list-unstyled d-flex flex-column gap-3">
+          <li class="step d-flex align-items-center">
+            <span class="badge bg-primary me-2">1</span>
+            <div class="flex-grow-1">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="backupChecked" v-model="backupChecked">
+                <label class="form-check-label" for="backupChecked">
+                  我已通知後端工程師備份數據庫
+                </label>
+              </div>
+            </div>
+          </li>
+          <li class="step d-flex align-items-center">
+            <span class="badge bg-primary me-2">2</span>
+            <div class="flex-grow-1">
+              <form id="bulk-upload-form" enctype="multipart/form-data" @submit.prevent="handleFileUpload">
+                <div class="mb-3">
+                  <label for="csvFile" class="form-label">請選擇 CSV 檔案</label>
+                  <input class="form-control" type="file" id="csvFile" name="csvFile" accept=".csv" required @change="handleFileChange">
+                </div>
+                <button type="button" class="btn btn-secondary me-2" :disabled="!canDryRun" @click="handleDryRun">檔案驗證</button>
+                <span v-if="dryRunMsg" class="ms-2" :class="{'text-success': dryRunPassed, 'text-danger': !dryRunPassed}">[[ dryRunMsg ]]</span>
+              </form>
+            </div>
+          </li>
+          <li class="step d-flex align-items-center">
+            <span class="badge bg-primary me-2">3</span>
+            <div class="flex-grow-1">
+              <button type="button" class="btn btn-primary" :disabled="!canSubmit" @click="handleFileUpload($event)">執行批量開帳號</button>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <div id="result-section" class="mt-4" v-if="resultCsvUrl">
         <h5>執行結果</h5>
-        <a id="download-link" href="#" class="btn btn-success mb-2" download style="display:none;">下載結果 CSV</a>
+        <div class="alert alert-success">批次開帳號執行成功！</div>
+        <a :href="resultCsvUrl" class="btn btn-success mb-2" download>下載結果 CSV</a>
         <div id="result-table-wrapper"></div>
       </div>
     </div>
@@ -52,17 +95,62 @@ new Vue({
   delimiters: ['[[', ']]'],
   data: {
     resultCsvUrl: '',
-    resultTableHtml: '',
     uploading: false,
     errorMsg: '',
+    backupChecked: false,
+    fileSelected: false,
+    dryRunPassed: false,
+    dryRunMsg: '',
+    fileObj: null
+  },
+  computed: {
+    canDryRun() {
+      return this.backupChecked && this.fileSelected && !this.uploading;
+    },
+    canSubmit() {
+      return this.canDryRun && this.dryRunPassed && !this.uploading;
+    }
   },
   methods: {
+    handleFileChange(e) {
+      this.fileSelected = !!e.target.files.length;
+      this.dryRunPassed = false;
+      this.dryRunMsg = '';
+      this.fileObj = e.target.files[0] || null;
+    },
+    handleDryRun() {
+      if (!this.fileObj) return;
+      const formData = new FormData();
+      formData.append('csvFile', this.fileObj);
+      formData.append('dry_run', '1');
+      this.uploading = true;
+      this.dryRunMsg = '';
+      fetch('/admin/bulk_create_accounts', {
+        method: 'POST',
+        body: formData
+      })
+      .then(res => res.json())
+      .then(data => {
+        this.uploading = false;
+        if (data.success) {
+          this.dryRunPassed = true;
+          this.dryRunMsg = '檔案驗證成功，可進行批次開帳號。';
+        } else {
+          this.dryRunPassed = false;
+          this.dryRunMsg = data.error || '檔案驗證失敗';
+        }
+      })
+      .catch(() => {
+        this.uploading = false;
+        this.dryRunPassed = false;
+        this.dryRunMsg = '檔案驗證失敗，請重試';
+      });
+    },
     handleFileUpload(e) {
       e.preventDefault();
-      const fileInput = document.getElementById('csvFile');
-      if (!fileInput.files.length) return;
+      if (!this.canSubmit) return;
       const formData = new FormData();
-      formData.append('csvFile', fileInput.files[0]);
+      formData.append('csvFile', this.fileObj);
       this.uploading = true;
       this.errorMsg = '';
       fetch('/admin/bulk_create_accounts', {
@@ -75,11 +163,8 @@ new Vue({
         if (data.result_csv_url) {
           this.resultCsvUrl = data.result_csv_url;
         }
-        if (data.table_html) {
-          this.resultTableHtml = data.table_html;
-        }
       })
-      .catch(err => {
+      .catch(() => {
         this.uploading = false;
         this.errorMsg = '上傳失敗，請重試';
       });

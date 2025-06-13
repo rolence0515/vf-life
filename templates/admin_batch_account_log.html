@@ -1,0 +1,60 @@
+{% extends 'admin_base.html' %}
+{% block content %}
+<div class="container-fluid">
+  <div class="card">
+    <div class="card-body">
+      <h3 class="mb-4">批次開帳號記錄</h3>
+      <table class="table table-bordered table-hover">
+        <thead>
+          <tr>
+            <th>日期</th>
+            <th>操作者姓名</th>
+            <th>操作者Email</th>
+            <th>已通知備份</th>
+            <th>狀態</th>
+            <th>總筆數</th>
+            <th>新建帳號</th>
+            <th>已存在帳號</th>
+            <th>總開通影片</th>
+            <!-- <th>結果檔案</th> -->
+            <th>失敗原因</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for log in logs %}
+          <tr>
+            <td>{{ log.created_at.strftime('%Y-%m-%d %H:%M:%S') if log.created_at else '' }}</td>
+            <td>{{ log.operator_name }}</td>
+            <td>{{ log.operator_email }}</td>
+            <td>{{ '✔️' if log.backup_checked else '' }}</td>
+            <td>{{ log.status }}</td>
+            <td>{{ log.total_count }}</td>
+            <td>{{ log.new_user_count }}</td>
+            <td>{{ log.exist_user_count }}</td>
+            <td>{{ log.total_videos_count }}</td>
+            <!-- <td>
+              {% if log.result_filename %}
+                <a href="{{ url_for('admin.download_bulk_create_result', filename=log.result_filename) }}" target="_blank">下載</a>
+              {% endif %}
+            </td> -->
+            <td>{{ log.fail_reason }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+ </div>
+{% endblock %}
+
+{% block vue_scripts %}
+<script>
+new Vue({
+  el: '#app',
+  delimiters: ['[[', ']]'],
+  data: {
+    // logs 由後端渲染，這裡可擴充互動功能
+  }
+});
+</script>
+{% endblock %}

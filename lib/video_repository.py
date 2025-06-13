@@ -6,6 +6,13 @@ import pytz
 from datetime import datetime
 
 class VideoRepository:
+    def get_videos_by_series(self, series_id):
+        """
+        取得指定系列下所有影片（回傳 [{'id': ...}, ...]）
+        """
+        with self.conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute('SELECT id FROM videos WHERE series_id = %s', (series_id,))
+            return cur.fetchall()
     def __init__(self):
         self.conn = psycopg2.connect(
             host=config.DB_HOST,

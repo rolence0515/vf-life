@@ -1,11 +1,19 @@
-
+# 批次開帳號記錄頁
 import hashlib
+import os
+import glob
+import csv
+import io
+import tempfile
+import hashlib
+import datetime
 
-from flask import Blueprint, render_template, request, jsonify
+from flask import Blueprint, render_template, request, jsonify, url_for, send_file, session
 from lib.login_required import login_required, admin_user_required
-from lib.user_repository import UserRepository
 from psycopg2 import IntegrityError
+from lib.user_repository import UserRepository
 from lib.video_repository import VideoRepository
+from lib.batch_account_log_repository import BatchAccountLogRepository
 
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
 
@@ -29,16 +37,16 @@ def admin_videos():
 def admin_bulk_create_accounts():
     return render_template('admin_bulk_create_accounts.html')
 
+@admin_bp.route('/batch_account_log')
+@admin_user_required
+def admin_batch_account_log():
+    repo = BatchAccountLogRepository()
+    logs = repo.get_recent_logs(20)
+    repo.close()
+    return render_template('admin_batch_account_log.html', logs=logs)
+
 # ===================================== API 路由 =====================================
-
 # 批量開帳號 - 檔案上傳與批次處理
-import csv
-import io
-import tempfile
-from flask import send_file
-import hashlib
-import datetime
-
 @admin_bp.route('/bulk_create_accounts', methods=['POST'])
 @admin_user_required
 def api_bulk_create_accounts():
@@ -46,6 +54,7 @@ def api_bulk_create_accounts():
     if not file or not file.filename.endswith('.csv'):
         return jsonify({'error': '請上傳 CSV 檔案'}), 400
 
+    dry_run = request.form.get('dry_run') == '1'
     file.stream.seek(0)
     csv_text = file.stream.read().decode('utf-8-sig')
     reader = csv.DictReader(io.StringIO(csv_text))
@@ -55,77 +64,150 @@ def api_bulk_create_accounts():
     writer = csv.DictWriter(output, fieldnames=fieldnames)
     writer.writeheader()
 
-    from lib.user_repository import UserRepository
-    from lib.video_repository import VideoRepository
     user_repo = UserRepository()
     video_repo = VideoRepository()
 
-    for row in reader:
-        name = row.get('name', '').strip()
-        email = row.get('email', '').strip().lower()
-        serial1 = row.get('serial1', '0').strip()
-        serial2 = row.get('serial2', '0').strip()
-        new_user = 0
-        default_pw = ''
-        user = user_repo.get_user_by_email(email)
-        if not user:
-            # 建立新 user
-            pw_raw = hashlib.sha256(email.encode('utf-8')).hexdigest()[:6]
-            pw_hash = hashlib.sha256(pw_raw.encode()).hexdigest()
-            user_id = user_repo.create_user(name, email, pw_hash)
-            new_user = 1
-            default_pw = pw_raw
-        else:
-            user_id = user['id']
+    # 取得操作者資訊（假設 session 有存姓名與 email）
+    operator_name = None
+    operator_email = None
+    try:
+        operator_email = session.get('user_email') or ''
+        user = user_repo.get_user_by_email(operator_email)
+        operator_name = user['name'] if user and 'name' in user else ''
+    except Exception:
+        pass
 
-        videos_count = 0
-        # 處理 serial1/serial2 欄位
-        for series_id, serial_flag in [(1, serial1), (2, serial2)]:
-            if serial_flag == '1':
-                # 查詢該系列所有影片
-                videos = video_repo.get_videos_by_series(series_id)
-                for v in videos:
-                    added = user_repo.add_user_video(user_id, v['id'])
-                    if added:
-                        videos_count += 1
-            elif serial_flag == '0':
-                # 移除該系列所有影片權限
-                videos = video_repo.get_videos_by_series(series_id)
-                for v in videos:
-                    user_repo.remove_user_video(user_id, v['id'])
+    backup_checked = True # 前端必定已勾選「已通知備份」才可能進入這個 API
+    log_repo = BatchAccountLogRepository()
+    status = 'success'
+    fail_reason = ''
+    total_count = 0
+    new_user_count = 0
+    exist_user_count = 0
+    total_videos_count = 0
 
-        writer.writerow({
-            'name': name,
-            'email': email,
-            'user_id': user_id,
-            'new_user': new_user,
-            'default_pw': default_pw,
-            'videos_count': videos_count
+    try:
+
+        for row in reader:
+            name = row.get('name', '').strip()
+            email = row.get('email', '').strip().lower()
+            serial1 = row.get('serial1', '').strip()
+            serial2 = row.get('serial2', '').strip()
+            # 驗證必填欄位
+            if not name or not email or not serial1 or not serial2:
+                raise ValueError(f"CSV 欄位缺漏或空值，請檢查 name/email/serial1/serial2，錯誤資料: {row}")
+
+            new_user = 0
+            default_pw = ''
+            user = user_repo.get_user_by_email(email)
+            user_id = None
+            if not user:
+                # 建立新 user（dry-run 不寫入）
+                pw_raw = hashlib.sha256(email.encode('utf-8')).hexdigest()[:6]
+                pw_hash = hashlib.sha256(pw_raw.encode()).hexdigest()
+                if not dry_run:
+                    user_id = user_repo.create_user(name, email, pw_hash)
+                else:
+                    user_id = f"(new)"
+                new_user = 1
+                default_pw = pw_raw
+            else:
+                user_id = user['id']
+
+            videos_count = 0
+            # 處理 serial1/serial2 欄位
+            for series_id, serial_flag in [(1, serial1), (2, serial2)]:
+                if serial_flag == '1':
+                    videos = video_repo.get_videos_by_series(series_id)
+                    for v in videos:
+                        if not dry_run:
+                            added = user_repo.add_user_video(user_id, v['id'])
+                            if added:
+                                videos_count += 1
+                        else:
+                            videos_count += 1
+                elif serial_flag == '0':
+                    videos = video_repo.get_videos_by_series(series_id)
+                    for v in videos:
+                        if not dry_run:
+                            user_repo.remove_user_video(user_id, v['id'])
+
+            writer.writerow({
+                'name': name,
+                'email': email,
+                'user_id': user_id,
+                'new_user': new_user,
+                'default_pw': default_pw,
+                'videos_count': videos_count
+            })
+
+            # 統計資訊
+            total_count += 1
+            if new_user:
+                new_user_count += 1
+            else:
+                exist_user_count += 1
+            total_videos_count += videos_count
+
+        if dry_run:
+            return jsonify({'success': True})
+
+        user_repo.close()
+        video_repo.close()
+
+        # 產生結果 CSV 檔案（直接用 bulk_create_result_yyyyMMddHHmmss.csv 寫入 tempdir）
+        output.seek(0)
+        timestamp = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
+        result_filename = f'bulk_create_result_{timestamp}.csv'
+        result_path = os.path.join(tempfile.gettempdir(), result_filename)
+        with open(result_path, 'w', encoding='utf-8-sig') as f:
+            f.write(output.getvalue())
+
+        # 寫入批次log
+        log_repo.insert_log(
+            operator_name=operator_name,
+            operator_email=operator_email,
+            backup_checked=backup_checked,
+            status=status,
+            fail_reason=fail_reason,
+            total_count=total_count,
+            new_user_count=new_user_count,
+            exist_user_count=exist_user_count,
+            total_videos_count=total_videos_count,
+            result_filename=result_filename
+        )
+        log_repo.close()
+
+        return jsonify({
+            'result_csv_url': url_for('admin.download_bulk_create_result', filename=result_filename)
         })
-
-    user_repo.close()
-    video_repo.close()
-
-    # 產生結果 CSV 檔案
-    output.seek(0)
-    timestamp = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
-    result_filename = f'bulk_create_result_{timestamp}.csv'
-    result_path = tempfile.mktemp(suffix='.csv')
-    with open(result_path, 'w', encoding='utf-8-sig') as f:
-        f.write(output.getvalue())
-
-    # 回傳下載連結（不回傳表格）
-    from flask import url_for
-    return jsonify({
-        'result_csv_url': url_for('admin.download_bulk_create_result', filename=result_filename)
-    })
+    except Exception as e:
+        status = 'fail'
+        fail_reason = str(e)
+        if not dry_run:
+            # 寫入失敗log
+            log_repo.insert_log(
+                operator_name=operator_name,
+                operator_email=operator_email,
+                backup_checked=backup_checked,
+                status=status,
+                fail_reason=fail_reason,
+                total_count=total_count,
+                new_user_count=new_user_count,
+                exist_user_count=exist_user_count,
+                total_videos_count=total_videos_count,
+                result_filename=''
+            )
+            log_repo.close()
+        if dry_run:
+            return jsonify({'success': False, 'error': str(e)})
+        return jsonify({'error': str(e)}), 500
 
 # 提供結果 CSV 檔案下載
 @admin_bp.route('/bulk_create_result/<filename>')
 @admin_user_required
 def download_bulk_create_result(filename):
-    import os
-    import glob
+   
     # 只允許下載剛剛產生的檔案
     temp_dir = tempfile.gettempdir()
     file_path = os.path.join(temp_dir, filename)
