@@ -16,7 +16,7 @@ def gen_default_pw(email):
 @click.argument('csv_path', required=True, default='20250508_會員訂單_正式名單.csv')
 def user_buy_serial_tool(env, csv_path):
     """
-    批次匯入會員購買影片系列(csv)，自動建立/查詢會員、開通會員可觀看影片權限。
+    批量匯入會員購買影片系列(csv)，自動建立/查詢會員、開通會員可觀看影片權限。
     輸出結果csv，檔名加timestamp避免覆蓋。
     """
     #===== 執行前備份提示 =====

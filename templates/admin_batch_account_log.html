@@ -3,7 +3,7 @@
 <div class="container-fluid">
   <div class="card">
     <div class="card-body">
-      <h3 class="mb-4">批次開帳號記錄</h3>
+      <h3 class="mb-4">批量開帳號記錄</h3>
       <table class="table table-bordered table-hover">
         <thead>
           <tr>
@@ -16,7 +16,7 @@
             <th>新建帳號</th>
             <th>已存在帳號</th>
             <th>總開通影片</th>
-            <!-- <th>結果檔案</th> -->
+            <th>結果檔案</th>
             <th>失敗原因</th>
           </tr>
         </thead>
@@ -32,11 +32,11 @@
             <td>{{ log.new_user_count }}</td>
             <td>{{ log.exist_user_count }}</td>
             <td>{{ log.total_videos_count }}</td>
-            <!-- <td>
-              {% if log.result_filename %}
-                <a href="{{ url_for('admin.download_bulk_create_result', filename=log.result_filename) }}" target="_blank">下載</a>
+            <td>
+              {% if log.gcs_url %}
+                <a href="{{ log.gcs_url }}" target="_blank">下載</a>
               {% endif %}
-            </td> -->
+            </td>
             <td>{{ log.fail_reason }}</td>
           </tr>
           {% endfor %}

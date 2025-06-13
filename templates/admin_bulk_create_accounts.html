@@ -61,10 +61,9 @@
             <div class="flex-grow-1">
               <form id="bulk-upload-form" enctype="multipart/form-data" @submit.prevent="handleFileUpload">
                 <div class="mb-3">
-                  <label for="csvFile" class="form-label">請選擇 CSV 檔案</label>
                   <input class="form-control" type="file" id="csvFile" name="csvFile" accept=".csv" required @change="handleFileChange">
                 </div>
-                <button type="button" class="btn btn-secondary me-2" :disabled="!canDryRun" @click="handleDryRun">檔案驗證</button>
+                <button type="button" class="btn btn-secondary me-2" :disabled="!canDryRun" @click="handleDryRun">開始 CSV 檔案驗證</button>
                 <span v-if="dryRunMsg" class="ms-2" :class="{'text-success': dryRunPassed, 'text-danger': !dryRunPassed}">[[ dryRunMsg ]]</span>
               </form>
             </div>
@@ -79,7 +78,7 @@
       </div>
       <div id="result-section" class="mt-4" v-if="resultCsvUrl">
         <h5>執行結果</h5>
-        <div class="alert alert-success">批次開帳號執行成功！</div>
+        <div class="alert alert-success">批量開帳號執行成功！</div>
         <a :href="resultCsvUrl" class="btn btn-success mb-2" download>下載結果 CSV</a>
         <div id="result-table-wrapper"></div>
       </div>
@@ -134,7 +133,7 @@ new Vue({
         this.uploading = false;
         if (data.success) {
           this.dryRunPassed = true;
-          this.dryRunMsg = '檔案驗證成功，可進行批次開帳號。';
+          this.dryRunMsg = '檔案驗證成功，可進行批量開帳號。';
         } else {
           this.dryRunPassed = false;
           this.dryRunMsg = data.error || '檔案驗證失敗';

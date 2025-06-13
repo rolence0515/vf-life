@@ -29,7 +29,8 @@ class BatchAccountLogRepository:
                 new_user_count,
                 exist_user_count,
                 total_videos_count,
-                result_filename
+                result_filename,
+                gcs_url
             FROM batch_account_log
             ORDER BY created_at DESC
             LIMIT %s
@@ -38,17 +39,17 @@ class BatchAccountLogRepository:
         return self.cur.fetchall()
 
     def insert_log(self, operator_name, operator_email, backup_checked, status, fail_reason,
-                   total_count, new_user_count, exist_user_count, total_videos_count, result_filename):
+                   total_count, new_user_count, exist_user_count, total_videos_count, result_filename, gcs_url):
         sql = '''
             INSERT INTO batch_account_log (
                 created_at, operator_name, operator_email, backup_checked, status, fail_reason,
-                total_count, new_user_count, exist_user_count, total_videos_count, result_filename
-            ) VALUES (NOW(), %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                total_count, new_user_count, exist_user_count, total_videos_count, result_filename, gcs_url
+            ) VALUES (NOW(), %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             RETURNING id
         '''
         self.cur.execute(sql, (
             operator_name, operator_email, backup_checked, status, fail_reason,
-            total_count, new_user_count, exist_user_count, total_videos_count, result_filename
+            total_count, new_user_count, exist_user_count, total_videos_count, result_filename, gcs_url
         ))
         self.conn.commit()
         return self.cur.fetchone()['id']

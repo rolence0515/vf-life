@@ -165,6 +165,7 @@ CREATE TABLE admin_users (
 | exist_user_count   | INTEGER     | 已存在帳號數                         |
 | total_videos_count | INTEGER     | 總開通影片數                         |
 | result_filename    | VARCHAR(255)| 結果檔案名稱                         |
+| gcs_url            | TEXT        | GCS 下載連結                         |
 
 ```sql
 CREATE TABLE batch_account_log (
@@ -179,6 +180,7 @@ CREATE TABLE batch_account_log (
   new_user_count INTEGER, -- 新建帳號數
   exist_user_count INTEGER, -- 已存在帳號數
   total_videos_count INTEGER, -- 總開通影片數
-  result_filename VARCHAR(255) -- 結果檔案名稱
+  result_filename VARCHAR(255), -- 結果檔案名稱
+  gcs_url TEXT -- GCS 下載連結
 );
 ```

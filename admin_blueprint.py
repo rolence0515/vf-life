@@ -1,4 +1,3 @@
-# 批次開帳號記錄頁
 import hashlib
 import os
 import glob
@@ -155,6 +154,7 @@ def api_bulk_create_accounts():
         user_repo.close()
         video_repo.close()
 
+
         # 產生結果 CSV 檔案（直接用 bulk_create_result_yyyyMMddHHmmss.csv 寫入 tempdir）
         output.seek(0)
         timestamp = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
@@ -163,7 +163,17 @@ def api_bulk_create_accounts():
         with open(result_path, 'w', encoding='utf-8-sig') as f:
             f.write(output.getvalue())
 
-        # 寫入批次log
+        # === 上傳到 GCS ===
+        from lib.gcs_upload import upload_file_to_gcs
+        bucket_name = 'bulk_create_accounts'
+        gcs_path = f'logs/{result_filename}'
+        gcs_url = ''
+        try:
+            gcs_url = upload_file_to_gcs(result_path, bucket_name, gcs_path, content_type='text/csv')
+        except Exception as e:
+            gcs_url = ''  # 若上傳失敗不影響本地下載，但不回傳 GCS 連結
+
+        # 寫入批量log
         log_repo.insert_log(
             operator_name=operator_name,
             operator_email=operator_email,
@@ -174,12 +184,14 @@ def api_bulk_create_accounts():
             new_user_count=new_user_count,
             exist_user_count=exist_user_count,
             total_videos_count=total_videos_count,
-            result_filename=result_filename
+            result_filename=result_filename,
+            gcs_url=gcs_url
         )
         log_repo.close()
 
         return jsonify({
-            'result_csv_url': url_for('admin.download_bulk_create_result', filename=result_filename)
+            'result_csv_url': gcs_url,  # 直接給 GCS 下載網址
+            'gcs_url': gcs_url
         })
     except Exception as e:
         status = 'fail'
@@ -196,29 +208,16 @@ def api_bulk_create_accounts():
                 new_user_count=new_user_count,
                 exist_user_count=exist_user_count,
                 total_videos_count=total_videos_count,
-                result_filename=''
+                result_filename='',
+                gcs_url=''
             )
             log_repo.close()
         if dry_run:
             return jsonify({'success': False, 'error': str(e)})
         return jsonify({'error': str(e)}), 500
 
-# 提供結果 CSV 檔案下載
-@admin_bp.route('/bulk_create_result/<filename>')
-@admin_user_required
-def download_bulk_create_result(filename):
-   
-    # 只允許下載剛剛產生的檔案
-    temp_dir = tempfile.gettempdir()
-    file_path = os.path.join(temp_dir, filename)
-    if not os.path.exists(file_path):
-        # fallback: 找最新的 bulk_create_result_*.csv
-        files = sorted(glob.glob(os.path.join(temp_dir, 'bulk_create_result_*.csv')), reverse=True)
-        if files:
-            file_path = files[0]
-        else:
-            return 'File not found', 404
-    return send_file(file_path, as_attachment=True, download_name=filename)
+
+# 已移除 /bulk_create_result/<filename> 路由，下載請直接用 GCS 連結
 # 新增/移除管理員 API
 @admin_bp.route('/api/users/<int:user_id>/toggle_admin', methods=['POST'])
 @admin_user_required
