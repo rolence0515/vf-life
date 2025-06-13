@@ -4,13 +4,17 @@
 <div class="container-fluid" id="app">
   <div class="card">
     <div class="card-header">
-      <h4 class="mb-2">使用者列表 (User)</h4>
-      <div class="input-group mb-2" style="max-width: 400px;">
-        <input type="text" class="form-control" placeholder="搜尋 Email 或姓名" v-model="searchQuery" @keyup.enter="searchUsers">
-        <button class="btn btn-outline-secondary" @click="searchUsers">搜尋</button>
-      </div>
+      <h4 class="mb-2">使用者列表</h4>
     </div>
     <div class="card-body">
+      <div class="input-group mb-2" style="max-width: 400px;">
+        <input type="text" class="form-control" placeholder="搜尋 Email 或姓名" v-model="searchQuery" @keyup.enter="searchUsers">
+        <select class="form-select" style="max-width: 120px;" v-model="adminOnly">
+          <option :value="false">全部</option>
+          <option :value="true">僅管理員</option>
+        </select>
+        <button class="btn btn-outline-secondary" @click="searchUsers">搜尋</button>
+      </div>
       <table class="table table-hover">
         <thead>
           <tr>
@@ -81,7 +85,8 @@
       usersPerPage: 100,
       formData: {},
       formTitle: '',
-      searchQuery: ''
+      searchQuery: '',
+      adminOnly: false
     },
     mounted() {
       this.fetchUsers();
@@ -89,7 +94,8 @@
     methods: {
       fetchUsers() {
         const offset = (this.currentPage - 1) * this.usersPerPage;
-        fetch(`/admin/api/users?q=${encodeURIComponent(this.searchQuery)}&offset=${offset}&limit=${this.usersPerPage}`)
+        const adminParam = this.adminOnly ? '&admin_only=1' : '';
+        fetch(`/admin/api/users?q=${encodeURIComponent(this.searchQuery)}&offset=${offset}&limit=${this.usersPerPage}${adminParam}`)
           .then(res => res.json())
           .then(data => {
             this.userList = data.users;

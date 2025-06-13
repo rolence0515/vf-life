@@ -86,59 +86,48 @@ class UserRepository:
     def close(self):
         self.conn.close()
 
-    def get_users_with_pagination(self, q=None, offset=0, limit=20):
+    def get_users_with_pagination(self, q=None, offset=0, limit=20, admin_only=False):
         with self.conn.cursor() as cur:
+            where_clauses = []
+            params = []
             if q:
-                cur.execute('''
-                    SELECT u.id, u.email, u.name, u.created_at, u.updated_at,
-                        CASE WHEN a.user_id IS NOT NULL THEN TRUE ELSE FALSE END AS is_admin
-                    FROM "user" u
-                    LEFT JOIN admin_users a ON u.id = a.user_id
-                    WHERE LOWER(u.email) LIKE %s OR LOWER(u.name) LIKE %s
-                    ORDER BY u.id
-                    LIMIT %s OFFSET %s
-                ''', (f'%{q}%', f'%{q}%', limit, offset))
-                users = [
-                    {
-                        'id': row[0],
-                        'email': row[1],
-                        'name': row[2],
-                        'created_at': row[3].strftime('%Y-%m-%d') if row[3] else '',
-                        'updated_at': row[4].strftime('%Y-%m-%d') if row[4] else '',
-                        'is_admin': row[5]
-                    }
-                    for row in cur.fetchall()
-                ]
-
-                cur.execute('''
-                    SELECT COUNT(*)
-                    FROM "user" u
-                    LEFT JOIN admin_users a ON u.id = a.user_id
-                    WHERE LOWER(u.email) LIKE %s OR LOWER(u.name) LIKE %s
-                ''', (f'%{q}%', f'%{q}%'))
-                total = cur.fetchone()[0]
-            else:
-                cur.execute('''
-                    SELECT u.id, u.email, u.name, u.created_at, u.updated_at,
-                        CASE WHEN a.user_id IS NOT NULL THEN TRUE ELSE FALSE END AS is_admin
-                    FROM "user" u
-                    LEFT JOIN admin_users a ON u.id = a.user_id
-                    ORDER BY u.id
-                    LIMIT %s OFFSET %s
-                ''', (limit, offset))
-                users = [
-                    {
-                        'id': row[0],
-                        'email': row[1],
-                        'name': row[2],
-                        'created_at': row[3].strftime('%Y-%m-%d') if row[3] else '',
-                        'updated_at': row[4].strftime('%Y-%m-%d') if row[4] else '',
-                        'is_admin': row[5]
-                    }
-                    for row in cur.fetchall()
-                ]
-
-                cur.execute('SELECT COUNT(*) FROM "user"')
-                total = cur.fetchone()[0]
-
+                where_clauses.append('(LOWER(u.email) LIKE %s OR LOWER(u.name) LIKE %s)')
+                params.extend([f'%{q}%', f'%{q}%'])
+            if admin_only:
+                where_clauses.append('a.user_id IS NOT NULL')
+            where_sql = ''
+            if where_clauses:
+                where_sql = 'WHERE ' + ' AND '.join(where_clauses)
+            # 查詢用戶
+            sql = f'''
+                SELECT u.id, u.email, u.name, u.created_at, u.updated_at,
+                    CASE WHEN a.user_id IS NOT NULL THEN TRUE ELSE FALSE END AS is_admin
+                FROM "user" u
+                LEFT JOIN admin_users a ON u.id = a.user_id
+                {where_sql}
+                ORDER BY u.id
+                LIMIT %s OFFSET %s
+            '''
+            params.extend([limit, offset])
+            cur.execute(sql, tuple(params))
+            users = [
+                {
+                    'id': row[0],
+                    'email': row[1],
+                    'name': row[2],
+                    'created_at': row[3].strftime('%Y-%m-%d') if row[3] else '',
+                    'updated_at': row[4].strftime('%Y-%m-%d') if row[4] else '',
+                    'is_admin': row[5]
+                }
+                for row in cur.fetchall()
+            ]
+            # 查詢總數
+            count_sql = f'''
+                SELECT COUNT(*)
+                FROM "user" u
+                LEFT JOIN admin_users a ON u.id = a.user_id
+                {where_sql}
+            '''
+            cur.execute(count_sql, tuple(params[:-2]))
+            total = cur.fetchone()[0]
             return users, total
