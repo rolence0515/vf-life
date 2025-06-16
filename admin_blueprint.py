@@ -51,6 +51,21 @@ def admin_batch_account_log():
 def admin_series():
     return render_template('admin_series.html')
 
+# 使用者影片列表頁（僅管理員可檢視）
+@admin_bp.route('/user_videos/<int:user_id>')
+@admin_user_required
+def admin_user_videos(user_id):
+    repo = UserRepository()
+    user = repo.get_user_by_id(user_id)
+    if not user:
+        repo.close()
+        return render_template('admin_404.html'), 404
+    # 取得該使用者已開通的所有影片
+    video_list = repo.get_user_videos(user_id)
+    repo.close()
+    # 傳給前端
+    return render_template('admin_user_videos.html', videoList=video_list, userInfo=user)
+
 # ===================================== API 路由 =====================================
 # 批量開帳號 - 檔案上傳與批次處理
 @admin_bp.route('/bulk_create_accounts', methods=['POST'])
@@ -291,16 +306,6 @@ def api_reset_password(user_id):
     finally:
         repo.close()
 
-# @admin_bp.route('/user_videos')
-# @admin_user_required
-# def admin_user_videos():
-#     return render_template('admin_user_videos.html')
-
-# @admin_bp.route('/series')
-# @admin_user_required
-# def admin_series():
-#     return render_template('admin_series.html')
-
 # 取得影片列表 API
 @admin_bp.route('/api/videos', methods=['GET'])
 @admin_user_required
@@ -345,6 +350,12 @@ def api_delete_video(video_id):
     try:
         deleted = repo.delete_video(video_id)
         return jsonify({'success': deleted, 'msg': '影片已刪除' if deleted else '刪除失敗'})
+    except Exception as e:
+        # 特別處理外鍵約束錯誤，顯示友善中文訊息
+        err_msg = str(e)
+        if 'violates foreign key constraint' in err_msg and 'user_videos_video_id_fkey' in err_msg:
+            return jsonify({'success': False, 'msg': '有使用者擁有此影片，請先移除所有使用者後再刪除'}), 400
+        return jsonify({'success': False, 'msg': err_msg}), 400
     finally:
         repo.close()
 
@@ -388,7 +399,6 @@ def api_update_series(series_id):
     finally:
         repo.close()
 
-
 @admin_bp.route('/api/series/<int:series_id>', methods=['DELETE'])
 @admin_user_required
 def api_delete_series(series_id):
@@ -406,6 +416,69 @@ def api_delete_series(series_id):
         return jsonify({'success': deleted, 'msg': '系列已刪除' if deleted else '刪除失敗'})
     finally:
         repo.close()
+
+@admin_bp.route('/api/user_videos/<int:user_id>/series_and_videos', methods=['GET'])
+@admin_user_required
+def api_user_series_and_videos(user_id):
+    # 取得所有系列及該系列下所有影片，並標記該 user 已擁有的影片
+    srepo = SeriesRepository()
+    vrepo = VideoRepository()
+    urepo = UserRepository()
+    all_series = srepo.get_all_series()
+    all_videos = vrepo.get_all_videos()
+    user_videos = set(v['id'] for v in urepo.get_user_videos(user_id))
+    srepo.close()
+    vrepo.close()
+    urepo.close()
+    # 組合資料
+    series_list = []
+    for s in all_series:
+        videos = [
+            {
+                'id': v['id'],
+                'title': v['title'],
+                'owned': v['id'] in user_videos
+            }
+            for v in all_videos if v['series_id'] == s['id']
+        ]
+        series_list.append({
+            'id': s['id'],
+            'name': s['name'],
+            'videos': videos
+        })
+    return jsonify({'success': True, 'series': series_list})
+
+@admin_bp.route('/api/user_videos/<int:user_id>/add', methods=['POST'])
+@admin_user_required
+def api_add_user_video(user_id):
+    data = request.get_json() or {}
+    video_id = data.get('video_id')
+    if not video_id:
+        return jsonify({'success': False, 'msg': '缺少影片ID'}), 400
+    from lib.user_repository import UserRepository
+    repo = UserRepository()
+    try:
+        added = repo.add_user_video(user_id, video_id)
+        return jsonify({'success': added, 'msg': '已新增' if added else '已存在'})
+    finally:
+        repo.close()
+
+@admin_bp.route('/api/user_videos/<int:user_id>/remove', methods=['POST'])
+@admin_user_required
+def api_remove_user_video(user_id):
+    data = request.get_json() or {}
+    video_id = data.get('video_id')
+    if not video_id:
+        return jsonify({'success': False, 'msg': '缺少影片ID'}), 400
+    from lib.user_repository import UserRepository
+    repo = UserRepository()
+    try:
+        repo.remove_user_video(user_id, video_id)
+        return jsonify({'success': True, 'msg': '已刪除'})
+    finally:
+        repo.close()
+
+# ===================================== 錯誤處理 =====================================
 
 @admin_bp.app_errorhandler(404)
 def admin_page_not_found(e):

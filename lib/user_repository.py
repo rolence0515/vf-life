@@ -11,7 +11,31 @@ class UserRepository:
             password=config.DB_PASSWORD,
             dbname=config.DB_NAME
         )
+        
+    def close(self):
+        self.conn.close()
 
+    def get_user_videos(self, user_id):
+        """
+        取得該使用者已開通的所有影片（含標題、系列名稱、上架日、下架日）
+        """
+        with self.conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute('''
+                SELECT v.id, v.title, v.available_at, v.expired_at, s.name AS series_name
+                FROM user_videos uv
+                JOIN videos v ON uv.video_id = v.id
+                LEFT JOIN series s ON v.series_id = s.id
+                WHERE uv.user_id = %s
+                ORDER BY v.available_at DESC
+            ''', (user_id,))
+            videos = cur.fetchall()
+            # 格式化日期
+            for v in videos:
+                for k in ['available_at', 'expired_at']:
+                    if v.get(k):
+                        v[k] = v[k].strftime('%Y-%m-%d')
+            return videos
+    
     def create_user(self, name, email, password):
         """
         建立新 user，回傳 user_id
@@ -83,9 +107,6 @@ class UserRepository:
             cur.execute('SELECT 1 FROM admin_users WHERE user_id = %s', (user_id,))
             return cur.fetchone() is not None
 
-    def close(self):
-        self.conn.close()
-
     def get_users_with_pagination(self, q=None, offset=0, limit=20, admin_only=False):
         with self.conn.cursor() as cur:
             where_clauses = []
@@ -98,13 +119,16 @@ class UserRepository:
             where_sql = ''
             if where_clauses:
                 where_sql = 'WHERE ' + ' AND '.join(where_clauses)
-            # 查詢用戶
+            # 查詢用戶，join 出影片數量
             sql = f'''
                 SELECT u.id, u.email, u.name, u.created_at, u.updated_at,
-                    CASE WHEN a.user_id IS NOT NULL THEN TRUE ELSE FALSE END AS is_admin
+                    CASE WHEN a.user_id IS NOT NULL THEN TRUE ELSE FALSE END AS is_admin,
+                    COUNT(uv.id) AS video_count
                 FROM "user" u
                 LEFT JOIN admin_users a ON u.id = a.user_id
+                LEFT JOIN user_videos uv ON u.id = uv.user_id
                 {where_sql}
+                GROUP BY u.id, a.user_id, u.email, u.name, u.created_at, u.updated_at
                 ORDER BY u.id
                 LIMIT %s OFFSET %s
             '''
@@ -117,7 +141,8 @@ class UserRepository:
                     'name': row[2],
                     'created_at': row[3].strftime('%Y-%m-%d') if row[3] else '',
                     'updated_at': row[4].strftime('%Y-%m-%d') if row[4] else '',
-                    'is_admin': row[5]
+                    'is_admin': row[5],
+                    'video_count': row[6]
                 }
                 for row in cur.fetchall()
             ]
