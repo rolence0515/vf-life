@@ -40,12 +40,14 @@
             <td>[[ user.video_count ]]</td>
             <td>[[ user.created_at ]]</td>
             <td>[[ user.updated_at ]]</td>
-            <td>
-              <button class="btn btn-sm btn-warning" @click="resetPassword(user)">設回預設密碼</button>
-              <button class="btn btn-sm btn-secondary ms-2" @click="toggleAdmin(user)">
-                [[ user.is_admin ? '取消管理員' : '設為管理員' ]]
-              </button>
-              <a class="btn btn-sm btn-info ms-2" :href="`/admin/user_videos/${user.id}`" target="_blank">瀏覽影片</a>
+            <td style="white-space: nowrap;">
+              <div class="d-flex flex-row align-items-center gap-2">
+                <button class="btn btn-sm btn-warning" @click="resetPassword(user)">設回預設密碼</button>
+                <button class="btn btn-sm btn-secondary" @click="toggleAdmin(user)">
+                  [[ user.is_admin ? '取消管理員' : '設為管理員' ]]
+                </button>
+                <a class="btn btn-sm btn-info" :href="`/admin/user_videos/${user.id}`" target="_blank">管理影片</a>
+              </div>
             </td>
           </tr>
         </tbody>
