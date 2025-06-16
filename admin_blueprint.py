@@ -18,6 +18,7 @@ from lib.series_repository import SeriesRepository
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
 
 # ===================================== 一般路由 =====================================
+
 # 管理員使用者頁面
 @admin_bp.route('/')
 @admin_bp.route('/user')
@@ -67,6 +68,7 @@ def admin_user_videos(user_id):
     return render_template('admin_user_videos.html', videoList=video_list, userInfo=user)
 
 # ===================================== API 路由 =====================================
+
 # 批量開帳號 - 檔案上傳與批次處理
 @admin_bp.route('/bulk_create_accounts', methods=['POST'])
 @admin_user_required
@@ -108,7 +110,6 @@ def api_bulk_create_accounts():
     total_videos_count = 0
 
     try:
-
         for row in reader:
             name = row.get('name', '').strip()
             email = row.get('email', '').strip().lower()
@@ -176,7 +177,6 @@ def api_bulk_create_accounts():
         user_repo.close()
         video_repo.close()
 
-
         # 產生結果 CSV 檔案（直接用 bulk_create_result_yyyyMMddHHmmss.csv 寫入 tempdir）
         output.seek(0)
         timestamp = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
@@ -237,7 +237,6 @@ def api_bulk_create_accounts():
         if dry_run:
             return jsonify({'success': False, 'error': str(e)})
         return jsonify({'error': str(e)}), 500
-
 
 # 已移除 /bulk_create_result/<filename> 路由，下載請直接用 GCS 連結
 # 新增/移除管理員 API
