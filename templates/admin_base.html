@@ -56,13 +56,13 @@
                 </a>
               </li>
               <li class="sidebar-item">
-                <a href="{{ url_for('admin.admin_videos') }}" class="sidebar-link">
-                  <span>影片列表</span>
+                <a href="{{ url_for('admin.admin_series') }}" class="sidebar-link">
+                  <span>影片系列管理</span>
                 </a>
               </li>
               <li class="sidebar-item">
-                <a href="{{ url_for('admin.admin_series') }}" class="sidebar-link">
-                  <span>影片系列管理</span>
+                <a href="{{ url_for('admin.admin_videos') }}" class="sidebar-link">
+                  <span>影片列表</span>
                 </a>
               </li>
               <li class="sidebar-item">
@@ -101,11 +101,18 @@
                     <div class="message-body">
                       <a href="javascript:void(0)" class="d-flex align-items-center gap-2 dropdown-item">
                         <i class="ti ti-user fs-6"></i>
-                        <p class="mb-0 fs-3">sample@email.com</p>
+                        <div class="d-flex flex-column">
+                          <p class="mb-0 fs-3">{{ session.get('user_email', '') }}</p>
+                          <p class="mb-0 fs-4 text-muted">{{ session.get('user_name', '') }}</p>
+                        </div>
                       </a>
                       <a href="/change-password" class="d-flex align-items-center gap-2 dropdown-item">
                         <i class="ti ti-key fs-6"></i>
                         <p class="mb-0 fs-3">修改密碼</p>
+                      </a>
+                      <a href="/member_videos" class="d-flex align-items-center gap-2 dropdown-item">
+                        <i class="ti ti-play-circle fs-6"></i>
+                        <p class="mb-0 fs-3">直播回放後台</p>
                       </a>
                       <a href="/logout" class="btn btn-outline-primary mx-3 mt-2 d-block">登出</a>
                     </div>
