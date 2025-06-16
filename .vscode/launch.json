@@ -6,7 +6,8 @@
             "name": "vf-life",
             "type": "python",
             "request": "launch",
-            "program": "${file}",
+            // "program": "${file}",
+            "program": "app.py",
             "console": "integratedTerminal",
             "env": { 
                 "PIPENV_PYTHON": "3.11",
