@@ -39,8 +39,6 @@ CREATE TABLE "user" (
 );
 ```
 
-
-
 ---
 
 ## 2. user_videos 使用者可觀看影片表

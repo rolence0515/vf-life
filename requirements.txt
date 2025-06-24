@@ -8,3 +8,4 @@ psycopg2-binary==2.9.6
 Flask-Mail
 cryptography
 pytz
+google-cloud-storage
