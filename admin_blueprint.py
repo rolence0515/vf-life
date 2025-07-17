@@ -14,6 +14,7 @@ from lib.user_repository import UserRepository
 from lib.video_repository import VideoRepository
 from lib.batch_account_log_repository import BatchAccountLogRepository
 from lib.series_repository import SeriesRepository
+from lib.gcs_upload import upload_file_to_gcs
 
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')
 
@@ -37,6 +38,12 @@ def admin_videos():
 @admin_user_required
 def admin_bulk_create_accounts():
     return render_template('admin_bulk_create_accounts.html')
+
+# 批量開帳號頁面
+@admin_bp.route('/bulk_create_accounts_v2')
+@admin_user_required
+def admin_bulk_create_accounts_v2():
+    return render_template('admin_bulk_create_accounts_v2.html')
 
 @admin_bp.route('/batch_account_log')
 @admin_user_required
@@ -186,7 +193,6 @@ def api_bulk_create_accounts():
             f.write(output.getvalue())
 
         # === 上傳到 GCS ===
-        from lib.gcs_upload import upload_file_to_gcs
         bucket_name = 'bulk_create_accounts'
         gcs_path = f'logs/{result_filename}'
         gcs_url = ''
@@ -220,6 +226,239 @@ def api_bulk_create_accounts():
         fail_reason = str(e)
         if not dry_run:
             # 寫入失敗log
+            log_repo.insert_log(
+                operator_name=operator_name,
+                operator_email=operator_email,
+                backup_checked=backup_checked,
+                status=status,
+                fail_reason=fail_reason,
+                total_count=total_count,
+                new_user_count=new_user_count,
+                exist_user_count=exist_user_count,
+                total_videos_count=total_videos_count,
+                result_filename='',
+                gcs_url=''
+            )
+            log_repo.close()
+        if dry_run:
+            return jsonify({'success': False, 'error': str(e)})
+        return jsonify({'error': str(e)}), 500
+    
+#請插在這裏
+
+# 新版批量會員影片/系列開通 - CSV 格式
+@admin_bp.route('/bulk_create_accounts_v2', methods=['POST'])
+@admin_user_required
+def api_bulk_create_accounts_v2():
+    file = request.files.get('csvFile')
+    if not file or not file.filename.endswith('.csv'):
+        return jsonify({'error': '請上傳 CSV 檔案'}), 400
+
+    dry_run = request.form.get('dry_run') == '1'
+    file.stream.seek(0)
+    csv_text = file.stream.read().decode('utf-8-sig')
+    reader = csv.DictReader(io.StringIO(csv_text))
+    output = io.StringIO()
+    fieldnames = ['user_email', 'user_id', 'new_user', 'default_pw', 'opened_series', 'opened_videos', 'videos_count', 'error']
+    writer = csv.DictWriter(output, fieldnames=fieldnames)
+    writer.writeheader()
+
+    user_repo = UserRepository()
+    video_repo = VideoRepository()
+    series_repo = SeriesRepository()
+
+    # 取得操作者資訊（假設 session 有存姓名與 email）
+    operator_name = None
+    operator_email = None
+    try:
+        operator_email = session.get('user_email') or ''
+        user = user_repo.get_user_by_email(operator_email)
+        operator_name = user['name'] if user and 'name' in user else ''
+    except Exception:
+        pass
+
+    # 前端必定已勾選「已通知備份」才可能進入這個 API
+    backup_checked = True
+    log_repo = BatchAccountLogRepository()
+    status = 'success'
+    fail_reason = ''
+    total_count = 0
+    new_user_count = 0
+    exist_user_count = 0
+    total_videos_count = 0
+
+    try:
+        dry_run_errors = []
+        for row in reader:
+            email = (row.get('user_email') or '').strip().lower()
+            series_ids_raw = (row.get('series_ids') or '').strip()
+            video_ids_raw = (row.get('video_ids') or '').strip()
+            error_msg = ''
+            opened_series = []
+            opened_videos = []
+            videos_count = 0
+
+            if not email:
+                # 缺少 email 欄位
+                error_msg = '缺少 user_email'
+                writer.writerow({
+                    'user_email': email,
+                    'user_id': '',
+                    'new_user': '',
+                    'default_pw': '',
+                    'opened_series': '',
+                    'opened_videos': '',
+                    'videos_count': '',
+                    'error': error_msg
+                })
+                dry_run_errors.append(error_msg)
+                continue
+
+            # 解析 series_ids, video_ids
+            series_ids = [s.strip() for s in series_ids_raw.split(',') if s.strip()] if series_ids_raw else []
+            video_ids = [v.strip() for v in video_ids_raw.split(',') if v.strip()] if video_ids_raw else []
+
+            new_user = 0
+            default_pw = ''
+            user = user_repo.get_user_by_email(email)
+            user_id = None
+            if not user:
+                # 建立新 user（dry-run 不寫入）
+                # 預設密碼規則: sha256(email)[:6]
+                pw_raw = hashlib.sha256(email.encode('utf-8')).hexdigest()[:6]
+                pw_hash = hashlib.sha256(pw_raw.encode()).hexdigest()
+                if not dry_run:
+                    user_id = user_repo.create_user(email, email, pw_hash)
+                else:
+                    user_id = '(new)'
+                new_user = 1
+                default_pw = pw_raw
+            else:
+                # 已存在的使用者
+                user_id = user['id']
+
+            # 開通系列
+            for sid in series_ids:
+                try:
+                    sid_int = int(sid)
+                    videos = video_repo.get_videos_by_series(sid_int)
+                    if not videos:
+                        # 系列下無影片
+                        error_msg += f'系列ID {sid} 無影片; '
+                        dry_run_errors.append(f'系列ID {sid} 無影片')
+                        continue
+
+                    opened_series.append(sid)
+                    # 開通系列下的所有影片
+                    for v in videos: 
+                        if not dry_run:
+                            added = user_repo.add_user_video(user_id, v['id'])
+                            if added:
+                                videos_count += 1
+                        else:
+                            videos_count += 1
+                        opened_videos.append(str(v['id']))
+                except Exception as e:
+                    error_msg += f'系列ID {sid} 錯誤: {str(e)}; '
+                    dry_run_errors.append(f'系列ID {sid} 錯誤: {str(e)}')
+
+            # 開通指定影片
+            for vid in video_ids:
+                try:
+                    vid_int = int(vid)
+                    video = video_repo.get_video_by_id(vid_int)
+                    if not video:
+                        # 影片不存在
+                        error_msg += f'影片ID {vid} 不存在; '
+                        dry_run_errors.append(f'影片ID {vid} 不存在')
+                        continue
+                    if not dry_run:
+                        # 開通影片
+                        added = user_repo.add_user_video(user_id, vid_int)
+                        if added:
+                            videos_count += 1
+                    else:
+                        videos_count += 1
+                    opened_videos.append(str(vid_int))
+                except Exception as e:
+                    error_msg += f'影片ID {vid} 錯誤: {str(e)}; '
+                    dry_run_errors.append(f'影片ID {vid} 錯誤: {str(e)}')
+
+            # 若 series_ids 和 video_ids 都空，略過
+            if not series_ids and not video_ids:
+                error_msg += '未指定任何系列或影片; '
+                dry_run_errors.append('未指定任何系列或影片')
+
+            writer.writerow({
+                'user_email': email,
+                'user_id': user_id,
+                'new_user': new_user,
+                'default_pw': default_pw,
+                'opened_series': ','.join(opened_series),
+                'opened_videos': ','.join(opened_videos),
+                'videos_count': videos_count,
+                'error': error_msg
+            })
+
+            total_count += 1
+            if new_user:
+                new_user_count += 1
+            else:
+                exist_user_count += 1
+            total_videos_count += videos_count
+
+        if dry_run:
+            # 只做測試，不寫入資料庫，到這裡就結束
+            if dry_run_errors:
+                return jsonify({'success': False, 'error': 'CSV 驗證失敗：' + '; '.join(dry_run_errors)})
+            return jsonify({'success': True})
+
+        # 關閉資料庫連線
+        user_repo.close()
+        video_repo.close()
+        series_repo.close()
+
+        # 產生結果 CSV 檔案（直接用 bulk_create_result_v2_yyyyMMddHHmmss.csv 寫入 tempdir）
+        output.seek(0)
+        timestamp = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
+        result_filename = f'bulk_create_result_v2_{timestamp}.csv'
+        result_path = os.path.join(tempfile.gettempdir(), result_filename)
+        with open(result_path, 'w', encoding='utf-8-sig') as f:
+            f.write(output.getvalue())
+
+        # 上傳到 GCS
+        bucket_name = 'bulk_create_accounts'
+        gcs_path = f'logs/{result_filename}'
+        gcs_url = ''
+        try:
+            gcs_url = upload_file_to_gcs(result_path, bucket_name, gcs_path, content_type='text/csv')
+        except Exception as e:
+            gcs_url = ''
+
+        # 寫入批量log
+        log_repo.insert_log(
+            operator_name=operator_name,
+            operator_email=operator_email,
+            backup_checked=backup_checked,
+            status=status,
+            fail_reason=fail_reason,
+            total_count=total_count,
+            new_user_count=new_user_count,
+            exist_user_count=exist_user_count,
+            total_videos_count=total_videos_count,
+            result_filename=result_filename,
+            gcs_url=gcs_url
+        )
+        log_repo.close()
+
+        return jsonify({
+            'result_csv_url': gcs_url,
+            'gcs_url': gcs_url
+        })
+    except Exception as e:
+        status = 'fail'
+        fail_reason = str(e)
+        if not dry_run:
             log_repo.insert_log(
                 operator_name=operator_name,
                 operator_email=operator_email,
