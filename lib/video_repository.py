@@ -119,9 +119,12 @@ class VideoRepository:
                     available = available.date()
                 if isinstance(expired, datetime):
                     expired = expired.date()
+                # 狀態判斷，支援 expired 為 None（無截止日期）
                 if v['owned']:
                     if now < available:
                         status = 'bought_not_started'
+                    elif expired is None:
+                        status = 'bought_open' if now >= available else 'bought_not_started'
                     elif available <= now <= expired:
                         status = 'bought_open'
                     else:
@@ -129,14 +132,22 @@ class VideoRepository:
                 else:
                     if now < available:
                         status = 'not_bought_can_buy'
+                    elif expired is None:
+                        status = 'not_bought_can_buy' if now >= available else 'not_bought_can_buy'
                     elif available <= now <= expired:
                         status = 'not_bought_can_buy'
                     else:
                         status = 'not_bought_expired'
+                # period 顯示
+                period_str = f"{available.strftime('%Y/%m/%d')} ~ "
+                if expired:
+                    period_str += expired.strftime('%Y/%m/%d')
+                else:
+                    period_str += "無截止日期"
                 result.append({
                     'series': v['series'],
                     'title': v['title'],
-                    'period': f"{v['available_at'].strftime('%Y/%m/%d')} ~ {v['expired_at'].strftime('%Y/%m/%d')}",
+                    'period': period_str,
                     'vimeoUrl': v['url'] or 'https://player.vimeo.com/video/123456789',
                     'status': status,
                     'buy_url': v.get('buy_url')

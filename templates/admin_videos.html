@@ -76,7 +76,24 @@
           </div>
           <div class="mb-3">
             <label class="form-label">下架日</label>
-            <input type="date" class="form-control" v-model="formData.expired_at" required>
+            <div class="input-group">
+              <input
+                type="date"
+                class="form-control"
+                v-model="formData.expired_at"
+                :disabled="noExpired"
+                :required="!noExpired"
+              >
+              <div class="input-group-text">
+                <input
+                  type="checkbox"
+                  id="noExpired"
+                  v-model="noExpired"
+                  @change="toggleNoExpired"
+                >
+                <label for="noExpired" class="ms-1 mb-0" style="cursor:pointer;">無截止日期</label>
+              </div>
+            </div>
             <small class="form-text text-muted">決定觀眾可回放觀看的日期段</small>
           </div>
           <!-- 購買連結與購買日欄位移除 -->
@@ -101,7 +118,8 @@
       seriesList: [],
       formData: {},
       todayStr: new Date().toISOString().slice(0, 10),
-      formTitle: ''
+      formTitle: '',
+      noExpired: false // 新增
     },
     mounted() {
       this.fetchVideos();
@@ -129,10 +147,17 @@
       editItem(video) {
         this.formData = { ...video };
         this.formTitle = '編輯影片';
+        this.noExpired = !video.expired_at; // 若 expired_at 為 null/空，則勾選
       },
       resetForm() {
         this.formData = {};
         this.formTitle = '新增影片';
+        this.noExpired = false;
+      },
+      toggleNoExpired() {
+        if (this.noExpired) {
+          this.formData.expired_at = null;
+        }
       },
       deleteItem(id) {
         if (!confirm('確定要刪除這部影片嗎？')) return;
@@ -152,11 +177,11 @@
         const start = this.formData.available_at;
         const end = this.formData.expired_at;
         const today = new Date().toISOString().slice(0, 10);
-        if (start && end && end < start) {
+        if (!this.noExpired && start && end && end < start) {
           this.showAlert('下架日必須大於等於上架日', false);
           return;
         }
-        if ((start && start === today) || (end && end === today)) {
+        if (!this.noExpired && ((start && start === today) || (end && end === today))) {
           this.showAlert('上架日與下架日不能等於今日', false);
           return;
         }
@@ -164,6 +189,10 @@
         if (!this.formData.url || !this.formData.url.startsWith('https://player.vimeo.com')) {
           this.showAlert('影片網址必須以 https://player.vimeo.com 開頭', false);
           return;
+        }
+        // 若無截止日期，送出時 expired_at 設為 null
+        if (this.noExpired) {
+          this.formData.expired_at = null;
         }
         const method = this.formData.id ? 'POST' : 'POST';
         fetch('/admin/api/videos', {
