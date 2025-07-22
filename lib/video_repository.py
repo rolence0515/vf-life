@@ -156,8 +156,8 @@ class VideoRepository:
 
     def get_all_series(self):
         with self.conn.cursor() as cur:
-            cur.execute('SELECT id, name FROM series ORDER BY id ASC')
-            return [{'id': row[0], 'name': row[1]} for row in cur.fetchall()]
+            cur.execute('SELECT id, name, description FROM series ORDER BY id ASC')
+            return [{'id': row[0], 'name': row[1], 'description': row[2]} for row in cur.fetchall()]
 
     def get_next_available_video(self, today):
         with self.conn.cursor(cursor_factory=RealDictCursor) as cur:
