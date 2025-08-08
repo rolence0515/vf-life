@@ -122,9 +122,13 @@ def api_bulk_create_accounts():
             email = row.get('email', '').strip().lower()
             serial1 = row.get('serial1', '').strip()
             serial2 = row.get('serial2', '').strip()
-            # 驗證必填欄位
-            if not name or not email or not serial1 or not serial2:
-                raise ValueError(f"CSV 欄位缺漏或空值，請檢查 name/email/serial1/serial2，錯誤資料: {row}")
+            # 驗證必填欄位與 serial 欄位格式
+            if not name or not email:
+                raise ValueError(f"CSV 欄位缺漏或空值，請檢查 name/email，錯誤資料: {row}")
+            for idx, serial_val in enumerate([serial1, serial2], start=1):
+                if serial_val != '':
+                    if serial_val not in ('0', '1'):
+                        raise ValueError(f"serial{idx} 欄位必須為 1 或 0 或空值，錯誤資料: {row}")
 
             new_user = 0
             default_pw = ''
