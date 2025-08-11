@@ -114,12 +114,13 @@
     el: '#app',
     delimiters: ['[[', ']]'],
     data: {
-      videosList: [],
-      seriesList: [],
-      formData: {},
-      todayStr: new Date().toISOString().slice(0, 10),
-      formTitle: '',
-      noExpired: false // 新增
+  videosList: [],
+  seriesList: [],
+  formData: {},
+  todayStr: new Date().toISOString().slice(0, 10),
+  formTitle: '',
+  noExpired: false, // 新增
+  videoUrlPrefix: 'https://' // 影片網址前綴統一設定
     },
     mounted() {
       this.fetchVideos();
@@ -186,8 +187,8 @@
           return;
         }
         // 驗證影片網址前綴
-        if (!this.formData.url || !this.formData.url.startsWith('https://player.vimeo.com')) {
-          this.showAlert('影片網址必須以 https://player.vimeo.com 開頭', false);
+        if (!this.formData.url || !this.formData.url.startsWith(this.videoUrlPrefix)) {
+          this.showAlert(`影片網址必須以 ${this.videoUrlPrefix} 開頭`, false);
           return;
         }
         // 若無截止日期，送出時 expired_at 設為 null
