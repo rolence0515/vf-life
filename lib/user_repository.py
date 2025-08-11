@@ -17,11 +17,11 @@ class UserRepository:
 
     def get_user_videos(self, user_id):
         """
-        取得該使用者已開通的所有影片（含標題、系列名稱、上架日、下架日）
+        取得該使用者已開通的所有影片（含標題、系列名稱、上架日、下架日、最後修改日期）
         """
         with self.conn.cursor(cursor_factory=RealDictCursor) as cur:
             cur.execute('''
-                SELECT v.id, v.title, v.available_at, v.expired_at, s.name AS series_name
+                SELECT v.id, v.title, v.available_at, v.expired_at, s.name AS series_name, uv.updated_at
                 FROM user_videos uv
                 JOIN videos v ON uv.video_id = v.id
                 LEFT JOIN series s ON v.series_id = s.id
@@ -31,7 +31,7 @@ class UserRepository:
             videos = cur.fetchall()
             # 格式化日期
             for v in videos:
-                for k in ['available_at', 'expired_at']:
+                for k in ['available_at', 'expired_at', 'updated_at']:
                     if v.get(k):
                         v[k] = v[k].strftime('%Y-%m-%d')
             return videos

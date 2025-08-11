@@ -30,6 +30,7 @@
                 <th>標題</th>
                 <th>上架日</th>
                 <th>下架日</th>
+                <th>新增影片日期</th>
                 <th>操作</th>
               </tr>
             </thead>
@@ -40,6 +41,7 @@
                 <td>[[ video.title ]]</td>
                 <td>[[ video.available_at ]]</td>
                 <td>[[ video.expired_at ]]</td>
+                <td>[[ video.updated_at ]]</td>
                 <td>
                   <button class="btn btn-sm btn-danger" @click="removeVideo(video.id)">移除</button>
                 </td>
