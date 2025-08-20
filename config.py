@@ -22,5 +22,9 @@ class Config:
         self.EMAIL_USER = os.environ.get('EMAIL_USER', 'activity@violetflames.com')
         self.EMAIL_PASSWORD = os.environ.get('EMAIL_PASSWORD', 'xfhx ovkq fftk xrwa')
 
+        # Google reCAPTCHA 設定
+        self.RECAPTCHA_SITE_KEY = os.environ.get('RECAPTCHA_SITE_KEY', '')
+        self.RECAPTCHA_SECRET_KEY = os.environ.get('RECAPTCHA_SECRET_KEY', '')
+
 # Create a single instance of Config
 config = Config()

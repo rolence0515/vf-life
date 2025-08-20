@@ -50,27 +50,29 @@ def login():
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
-        hcaptcha_token = request.form.get('h-captcha-response')
-        if not hcaptcha_token:
+        recaptcha_token = request.form.get('g-recaptcha-response')
+        if not recaptcha_token:
             flash('請完成我是人類驗證', 'danger')
-            return render_template('login.html', username=username)
-        # hCaptcha 我是人類驗證
-        hcaptcha_secret = 'ES_e3cff9ee84a04dc08df9f3543d599641'  # 請換成你的 secret key
-        verify_url = 'https://hcaptcha.com/siteverify'
-        data = {
-            'secret': hcaptcha_secret,
-            'response': hcaptcha_token,
-            'remoteip': request.remote_addr
-        }
-        try:
-            resp = requests.post(verify_url, data=data, timeout=5)
-            result = resp.json()
-            if not result.get('success'):
-                flash('我是人類驗證失敗，請重試', 'danger')
-                return render_template('login.html', username=username)
-        except Exception:
-            flash('我是人類驗證服務異常，請稍後再試', 'danger')
-            return render_template('login.html', username=username)
+            return render_template('login.html', username=username, config=config)
+        # Google reCAPTCHA 驗證（僅在正式網域和 UAT 網域才驗證，其他一律通過）
+        domain = getattr(config, 'WEBSITE_DOMAIN', '')
+        if domain.startswith('https://replay.violetflames.com') or domain.startswith('https://vf-life-uat-548835227059.asia-east1.run.app'):
+            verify_url = 'https://www.google.com/recaptcha/api/siteverify'
+            data = {
+                'secret': config.RECAPTCHA_SECRET_KEY,
+                'response': recaptcha_token,
+                'remoteip': request.remote_addr
+            }
+            try:
+                resp = requests.post(verify_url, data=data, timeout=5)
+                result = resp.json()
+                if not result.get('success'):
+                    flash('我是人類驗證失敗，請重試', 'danger')
+                    return render_template('login.html', username=username, config=config)
+            except Exception:
+                flash('我是人類驗證服務異常，請稍後再試', 'danger')
+                return render_template('login.html', username=username, config=config)
+        # 其他網域一律視為驗證成功（跳過驗證）
         # 使用者資料庫我是人類驗證
         repo = UserRepository()
         user = repo.get_user_by_email(username)
@@ -92,7 +94,7 @@ def login():
         repo.close()
     else:
         get_flashed_messages()  # 清空殘留訊息
-    return render_template('login.html', username='')
+    return render_template('login.html', username='', config=config)
 
 @app.route('/change-password', methods=['GET', 'POST'])
 def change_password():

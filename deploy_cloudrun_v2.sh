@@ -64,19 +64,19 @@ IMAGE_URI="$ARTIFACT_REGION-docker.pkg.dev/$PROJECT_ID/$ARTIFACT_REPO/$IMAGE_NAM
 echo "🔍 IMAGE_URI = $IMAGE_URI"
 
 # 檢查 Colima 是否啟動，若未啟動則自動啟動
-if ! colima status | grep -q 'running'; then
-    echo "🔄 Colima 尚未啟動，正在啟動 Colima..."
-    colima start
-    if [ $? -ne 0 ]; then
-        echo "❌ Colima 啟動失敗，請檢查錯誤訊息。"
-        exit 1
-    fi
-else
-    echo "✅ Colima 已啟動。"
-fi
+# if ! colima status | grep -q 'running'; then
+#     echo "🔄 Colima 尚未啟動，正在啟動 Colima..."
+#     colima start --disk 30
+#     if [ $? -ne 0 ]; then
+#         echo "❌ Colima 啟動失敗，請檢查錯誤訊息。"
+#         exit 1
+#     fi
+# else
+#     echo "✅ Colima 已啟動。"
+# fi
 
 echo "🚀 開始建置 Docker 映像..."
-docker build -t $IMAGE_URI .
+docker build --platform=linux/amd64 -t $IMAGE_URI .
 if [ $? -ne 0 ]; then
     echo "❌ Docker build 失敗，請檢查錯誤訊息。"
     exit 1

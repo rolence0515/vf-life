@@ -56,9 +56,9 @@
                     </div>
                     <a class="text-primary fw-bold" href="/forgot-password">忘記密碼？</a>
                   </div>
-                  <!-- hCaptcha widget -->
+                  <!-- Google reCAPTCHA widget -->
                   <div class="mb-4">
-                    <div class="h-captcha" data-sitekey="1e869570-8ab8-4958-a68c-86e01a583f36"></div>
+                    <div class="g-recaptcha" data-sitekey="{{ config.RECAPTCHA_SITE_KEY }}"></div>
                   </div>
                   <button type="submit" class="btn btn-primary w-100 py-8 fs-4 mb-4">登入</button>
                 </form>
@@ -72,8 +72,8 @@
   <script src="/static/assets/libs/jquery/dist/jquery.min.js"></script>
   <script src="/static/assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
-  <!-- hCaptcha script -->
-  <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
+  <!-- Google reCAPTCHA script -->
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
   <script>
     document.getElementById('togglePassword').addEventListener('click', function () {
       const passwordInput = document.getElementById('exampleInputPassword1');
