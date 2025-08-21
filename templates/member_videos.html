@@ -112,7 +112,7 @@
                 <span class="hide-menu">系列講座</span>
               </li>
               <li v-for="(series, idx) in seriesList" :key="idx" :class="['sidebar-item', { active: String(activeSeriesId) === String(series.id) }]">
-                <a href="#" class="sidebar-link" aria-expanded="false" @click.prevent="setActiveSeries(series.id)">
+                <a href="#" :class="['sidebar-link', { active: String(activeSeriesId) === String(series.id) }]" aria-expanded="false" @click.prevent="setActiveSeries(series.id)">
                   <span>
                     <iconify-icon icon="solar:playlist-bold-duotone" class="fs-6"></iconify-icon>
                   </span>

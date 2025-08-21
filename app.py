@@ -40,7 +40,7 @@ def member_videos():
     vrepo = VideoRepository()
     # 取得系列 id 與名稱
     series_list = vrepo.get_all_series()
-    active_series_id = series_list[0]['id'] if series_list else None
+    active_series_id = 2
     video_list = vrepo.get_videos_with_status(user_email, active_series_id)
     vrepo.close()
     return render_template('member_videos.html', video_list=video_list, series_list=series_list, active_series_id=active_series_id, user_email=user_email, user_name=user_name, is_admin=is_admin)
@@ -50,13 +50,14 @@ def login():
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
-        recaptcha_token = request.form.get('g-recaptcha-response')
-        if not recaptcha_token:
-            flash('請完成我是人類驗證', 'danger')
-            return render_template('login.html', username=username, config=config)
+        
         # Google reCAPTCHA 驗證（僅在正式網域和 UAT 網域才驗證，其他一律通過）
         domain = getattr(config, 'WEBSITE_DOMAIN', '')
         if domain.startswith('https://replay.violetflames.com') or domain.startswith('https://vf-life-uat-548835227059.asia-east1.run.app'):
+            recaptcha_token = request.form.get('g-recaptcha-response')
+            if not recaptcha_token:
+                flash('請完成我是人類驗證', 'danger')
+            return render_template('login.html', username=username, config=config)
             verify_url = 'https://www.google.com/recaptcha/api/siteverify'
             data = {
                 'secret': config.RECAPTCHA_SECRET_KEY,
