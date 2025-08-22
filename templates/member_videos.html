@@ -20,6 +20,14 @@
   <meta name="apple-mobile-web-app-title" content="雙生紫焰直播">
   <link rel="stylesheet" href="/static/assets/css/styles.min.css" />
   <style>
+    li.sidebar-item.active > a.sidebar-link {
+      background: #0d6efd !important;
+      color: #fff !important;
+    }
+    li.sidebar-item.active > a.sidebar-link .hide-menu {
+      color: #fff !important;
+    }
+  /* 移除自定義 sidebar 高亮，恢復原本 class 綁定，使用 Bootstrap 或預設樣式 */
     [v-cloak] {
       display: none;
     }
@@ -112,7 +120,7 @@
                 <span class="hide-menu">系列講座</span>
               </li>
               <li v-for="(series, idx) in seriesList" :key="idx" :class="['sidebar-item', { active: String(activeSeriesId) === String(series.id) }]">
-                <a href="#" :class="['sidebar-link', { active: String(activeSeriesId) === String(series.id) }]" aria-expanded="false" @click.prevent="setActiveSeries(series.id)">
+                <a href="#" class="sidebar-link" aria-expanded="false" @click.prevent="setActiveSeries(series.id)">
                   <span>
                     <iconify-icon icon="solar:playlist-bold-duotone" class="fs-6"></iconify-icon>
                   </span>
